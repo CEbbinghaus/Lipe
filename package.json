@@ -1,0 +1,32 @@
+{
+  "name": "logger",
+  "version": "0.0.0",
+  "description": "A Logging library with full customizability",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "postinstall": "node ./util/PostInstal.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cebbinghaus/Logger"
+  },
+  "keywords": [
+    "logging",
+    "logger"
+  ],
+  "author": "CEbbinghaus",
+  "license": "ISC",
+  "optionalDependencies": {
+    "timer": "github:CEbbinghaus/timer"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "jest": "^27.1.0",
+    "ts-jest": "^27.0.5"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "typescript": "^4.4.2"
+  }
+}

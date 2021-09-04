@@ -1,0 +1,11 @@
+root = true
+
+# Applies to all files
+[**]
+end_of_line = lf
+insert_final_newline = true
+
+# Code files
+[**.ts]
+indent_style = tab
+indent_size = 4
