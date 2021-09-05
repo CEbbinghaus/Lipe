@@ -1,4 +1,4 @@
-// Runns initial Build script if the lib folder doesn't exist (in case it was included as a git repository)
+// Runs initial Build script if the lib folder doesn't exist (in case it was included as a git repository)
 
 
 const { exec } = require("child_process");

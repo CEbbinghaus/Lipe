@@ -5,8 +5,10 @@
 		"target": "ES5",
 		"allowJs": true,
 		"esModuleInterop": true,
+		"declaration": true,
+		"declarationDir": "lib",
 		"sourceMap": true,
-		"sourceRoot": "src",
+		"sourceRoot": "../src",
 		"outDir": "lib"
 	}
 }

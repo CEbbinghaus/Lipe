@@ -1,7 +1,7 @@
 import {Logger} from "../src/index"
 import {Colorizer, Console} from "../src/defaults"
 
-test("Constructing Logger with Paramters works", () => {
+test("Constructing Logger with Parameters works", () => {
 
 	const logger = new Logger(Colorizer, Console);
 

@@ -1,23 +1,31 @@
-const {Logger} = require("../lib/index");
-const {Colorizer, Console, Simple} = require("../lib/defaults");
+// We don't need to worry about code quality in this testing file
+/* eslint-disable */
 
-const logger = new Logger(Colorizer, Console);
-const simpleLogger = new Logger(Simple, Console);
+const { Logger, LoggerPipe } = require("../lib/index");
+const { Colorizer, Console, Simple, Timestamped, WriteToFile } = require("../lib/defaults");
 
-console.clear();
+const noSecret = (level, message, args) => {
+	if (args?.isSecret)
+		return false;
 
-logger.Debug("Hello World!");
-logger.Log("Hello World!");
-logger.Info("Hello World!");
-logger.Warn("Hello World!");
-logger.Error("Hello World!");
-logger.Critical("Hello World!");
+	return message;
+}
 
-console.log("---------------------------");
+const logger = new Logger({ title: "Test", encoding: "UTF8" });
 
-simpleLogger.Debug("Hello World!");
-simpleLogger.Log("Hello World!");
-simpleLogger.Info("Hello World!");
-simpleLogger.Warn("Hello World!");
-simpleLogger.Error("Hello World!");
-simpleLogger.Critical("Hello World!");
+const newPipe = new LoggerPipe()
+.Pipe(noSecret)
+.Pipe(Timestamped)
+.Write(WriteToFile("test.log"))
+.Pipe(Colorizer)
+.Write(Console);
+
+logger.pipe = newPipe;
+
+logger.Log("Nobody should see this", { isSecret: true });
+logger.Log("Everyone should see this");
+
+
+logger.Warn("Here is a Warning");
+logger.Error("Here is a Error");
+logger.Critical("Here is a Critical Application Problem");

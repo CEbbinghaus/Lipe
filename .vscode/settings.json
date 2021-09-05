@@ -1,0 +1,7 @@
+{
+	"cSpell.words": [
+		"IIFE"
+	],
+	"eslint.validate": ["typescript", "typescriptreact"]
+	
+}
