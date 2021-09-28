@@ -51,7 +51,7 @@ export const Console: IFormatter = (message) => {
 	console.log(message);
 };
 
-export const WriteToFile: ((filename: string, options: {minLevel?: LogLevel}) => IFormatter) = (filename, options) => {
+export const WriteToFile: ((filename: string, options?: {minLevel?: LogLevel}) => IFormatter) = (filename, options) => {
 	
 	const filePath = join(process.cwd(), filename);
 	if (!existsSync(filePath)) {
@@ -59,7 +59,7 @@ export const WriteToFile: ((filename: string, options: {minLevel?: LogLevel}) =>
 	}
 
 	return (message, {logLevel}) => {
-		if(options.minLevel && logLevel < options.minLevel)
+		if(options?.minLevel && logLevel < options.minLevel)
 			return;
 
 		appendFileSync(filePath, message + "\n");

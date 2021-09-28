@@ -1,7 +1,7 @@
 // We don't need to worry about code quality in this testing file
 /* eslint-disable */
 
-const { Logger, LoggerPipe } = require("../lib/index");
+const { Logger, LoggerPipe, LogLevel } = require("../lib/index");
 const { Colorizer, Console, Simple, Timestamped, WriteToFile } = require("../lib/defaults");
 
 const noSecret = (message, {args}) => {
@@ -28,7 +28,7 @@ const FilePipe = new LoggerPipe()
 	.Pipe(WriteToFile("test.log"));
 
 logger.ClearPipes()
-	.AddPipe(FilePipe)
+	.AddPipe(FilePipe.Pipe(WriteToFile("Errors.log", {minLevel: LogLevel.Error})))
 	.AddPipe(basePipe.Pipe(Wait5Second).Pipe(Colorizer).Pipe(Timestamped()).Pipe(Console));
 
 logger.Log("Nobody should see this", { isSecret: true });
