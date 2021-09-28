@@ -1,14 +1,10 @@
 import chalk, { ChalkFunction } from "chalk";
 import moment from "moment";
-import { IFormatter, IOutput, LogLevel } from ".";
+import { IFormatter, LogLevel } from ".";
 import { existsSync, appendFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
-
-export const Colorizer: IFormatter = (
-	logLevel: LogLevel,
-	message: string
-) => {
+export const Colorizer: IFormatter = (message: string, { logLevel }) => {
 	let color: ChalkFunction;
 	switch (logLevel) {
 		case LogLevel.Debug:
@@ -36,36 +32,36 @@ export const Colorizer: IFormatter = (
 	return `${prefix}: ${message}`;
 };
 
-export const Simple: IFormatter = (logLevel: LogLevel, message: string) => {
+export const Simple: IFormatter = (message: string, { logLevel }) => {
 	return `${LogLevel[logLevel]}: ${message}`;
 };
 
 export function Timestamped(format: string): IFormatter;
+export function Timestamped(): IFormatter;
 export function Timestamped(
-	levelOrFormat: string | LogLevel,
-	message?: string
-): IFormatter | string {
-	if (typeof levelOrFormat == "string")
-		return (logLevel, message) => {
-			const currentTime = moment().format(levelOrFormat);
-			return `[${currentTime}] ${message}`;
-		};
-
-	const currentTime = moment().format("MM/DD/YYYY HH:mm:ss");
-	return `[${currentTime}] ${message}`;
+	format = "MM/DD/YYYY HH:mm:ss"
+): IFormatter {
+	return (message) => {
+		const currentTime = moment().format(format);
+		return `[${currentTime}] ${message}`;
+	};
 }
 
-export const Console: IOutput = (message: string) => {
+export const Console: IFormatter = (message) => {
 	console.log(message);
 };
 
-export const WriteToFile: ((filename: string) => IOutput) = (filename) => {
+export const WriteToFile: ((filename: string, options: {minLevel?: LogLevel}) => IFormatter) = (filename, options) => {
+	
 	const filePath = join(process.cwd(), filename);
-	if (!existsSync(filePath)){
+	if (!existsSync(filePath)) {
 		writeFileSync(filePath, "");
 	}
 
-	return (message) => {
+	return (message, {logLevel}) => {
+		if(options.minLevel && logLevel < options.minLevel)
+			return;
+
 		appendFileSync(filePath, message + "\n");
 	};
 };

@@ -22,7 +22,7 @@ interface IPipeExecution {
 
 interface IPipe {
 	Pipe(formatter: IFormatter): IPipe;
-	Write(output: IOutput): IPipe;
+	Through(pipe: IPipe): IPipe;
 }
 
 interface IPipeData {
@@ -30,64 +30,115 @@ interface IPipeData {
 	[MessageSymbol]: string;
 	[LogLevelSymbol]: LogLevel;
 	isTimer: boolean;
+	options: ILoggerOptions;
 }
 
-export type IFormatter = (
-	LogLevel: LogLevel,
-	message: string,
-	args?: Record<string, unknown>
-) => string;
-export type IOutput = (message: string) => void;
+type FormatterOptions = {
+	logLevel: LogLevel;
+	args: Record<string, unknown>;
+}
 
-// TODO: Remove and add nessecary options
-// eslint-disable-next-line
-interface ILoggerOptions {}
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type IFormatter = (
+	message: string,
+	options: FormatterOptions
+	) => any;
+/* eslint-enable */
+	
+interface ILoggerOptions {
+	awaitPromises: boolean;
+}
 
 export class LoggerPipe implements IPipe {
-	pipe: (
-		| { type: "formatter"; func: IFormatter }
-		| { type: "output"; func: IOutput }
-	)[] = [];
+
+	pipe: IFormatter[] = [];
+
+	constructor(pipe: (IFormatter[]) = null){
+		this.pipe = pipe || this.pipe;
+	}
 
 	Pipe(formatter: IFormatter): IPipe {
 		if (!formatter) throw new Error("formatter provided is undefined");
-		this.pipe.push({ type: "formatter", func: formatter });
-		return this;
+		return new LoggerPipe([...this.pipe, formatter]);
 	}
 
-	Write(output: IOutput): IPipe {
-		if (!output) throw new Error("output provided is undefined");
-		this.pipe.push({ type: "output", func: output });
-		return this;
+	Through(pipe: IPipe): IPipe {
+		return new LoggerPipe([...this.pipe,...(pipe as LoggerPipe).pipe]);
 	}
 
-	private Execute(data: IPipeData) {
+	/* eslint-disable no-await-in-loop*/
+	private async Execute({[MessageSymbol]: message, [LogLevelSymbol]: logLevel, meta, options }: IPipeData) {
 		for (let i = 0; i < this.pipe.length; ++i) {
-			const { type, func } = this.pipe[i];
-			switch (type) {
-				case "formatter": {
-					const newMessage = (func as IFormatter)(
-						data[LogLevelSymbol],
-						data[MessageSymbol],
-						data.meta
-					);
-					if (!newMessage) return;
-					data[MessageSymbol] = newMessage;
-					break;
-				}
-				case "output":
-					(func as IOutput)(data[MessageSymbol]);
-					break;
+			const func = this.pipe[i];
+
+			let result = func(message, {
+				args: meta,
+				logLevel: logLevel,
+			});
+			
+			// make sure to await Promises if the option is set
+			if(options.awaitPromises)
+				result = await Promise.resolve(result);
+			else{
+				// We need to Skip past it if it is a Promise
+				if(typeof(result?.then) === "function")
+					continue;
 			}
+
+			// Output function that does not modify the Message,
+			if(result === undefined)
+				continue;
+
+			// Explicitly returning Negative value. Stop execution of the Pipe
+			if(result === false || result === null)
+				return;
+
+			if(typeof(result) !== "string")
+				throw new TypeError(`Value returned was of type ${typeof(result)}. Must be of type String`);
+
+			message = result;
 		}
 	}
+	/* eslint-enable */
 }
+
+const defaultOptions: ILoggerOptions = {
+	awaitPromises: false
+};
 export class Logger {
-	pipe: IPipe = new LoggerPipe();
+	private pipes: IPipe[] = [new LoggerPipe()]; 
+	
+	get pipe(): IPipe{
+		return this.pipes[0];
+	}
+
+	set pipe(value: IPipe){
+		this.pipes[0] = value;
+	}
+
 	options: ILoggerOptions;
 
-	constructor(options: ILoggerOptions) {
-		this.options = options;
+	constructor(options: ILoggerOptions = null) {
+		this.options = options || defaultOptions;
+	}
+	
+	AddPipe(pipe: IPipe): Logger{
+		this.pipes.push(pipe);
+		return this;
+	}
+
+	RemovePipe(pipe: IPipe): Logger{
+		const index = this.pipes.indexOf(pipe);
+
+		if(index === -1) return;
+
+		this.pipes.splice(index, 1);
+		return this;
+	}
+
+	ClearPipes(): Logger{
+		this.pipes = [new LoggerPipe()];
+		return this;
 	}
 
 	private getCallerLine(err: Error) {
@@ -101,13 +152,19 @@ export class Logger {
 		message: string,
 		args?: Record<string, unknown>
 	) {
-		// We do this to get around exposing the Execute method to the user
-		(this.pipe as unknown as IPipeExecution).Execute({
-			[MessageSymbol]: message,
-			[LogLevelSymbol]: type,
-			isTimer: false,
-			meta: args,
-		});
+		// Old for loop for its (minimal) speed gain
+		for(let i = 0; i < this.pipes.length; ++i){
+
+			// We do this to get around exposing the Execute method to the user
+			(this.pipes[i] as unknown as IPipeExecution).Execute({
+				[MessageSymbol]: message,
+				[LogLevelSymbol]: type,
+				isTimer: false,
+				meta: args,
+				options: this.options,
+			});
+		}
+
 	}
 
 	Debug(message: string, args?: Record<string, unknown>): void {

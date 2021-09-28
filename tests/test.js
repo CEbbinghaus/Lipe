@@ -4,28 +4,37 @@
 const { Logger, LoggerPipe } = require("../lib/index");
 const { Colorizer, Console, Simple, Timestamped, WriteToFile } = require("../lib/defaults");
 
-const noSecret = (level, message, args) => {
+const noSecret = (message, {args}) => {
 	if (args?.isSecret)
 		return false;
 
 	return message;
 }
 
+const Wait5Second = () => {
+	return new Promise((res, rej) => {
+		setTimeout(res, Math.random() * 5000);
+	})
+}
+
 const logger = new Logger({ title: "Test", encoding: "UTF8" });
 
-const newPipe = new LoggerPipe()
-.Pipe(noSecret)
-.Pipe(Timestamped)
-.Write(WriteToFile("test.log"))
-.Pipe(Colorizer)
-.Write(Console);
+const basePipe = new LoggerPipe()
+	.Pipe(noSecret);
 
-logger.pipe = newPipe;
+const FilePipe = new LoggerPipe()
+	.Through(basePipe)
+	.Pipe(Timestamped())
+	.Pipe(WriteToFile("test.log"));
+
+logger.ClearPipes()
+	.AddPipe(FilePipe)
+	.AddPipe(basePipe.Pipe(Wait5Second).Pipe(Colorizer).Pipe(Timestamped()).Pipe(Console));
 
 logger.Log("Nobody should see this", { isSecret: true });
 logger.Log("Everyone should see this");
 
 
 logger.Warn("Here is a Warning");
-logger.Error("Here is a Error");
+logger.Error("Here is an Error");
 logger.Critical("Here is a Critical Application Problem");
