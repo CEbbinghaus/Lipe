@@ -44,10 +44,6 @@ export type IFormatter = (
 	options: FormatterOptions
 	) => any;
 /* eslint-enable */
-	
-interface ILoggerOptions {
-	awaitPromises: boolean;
-}
 
 export class LoggerPipe implements IPipe {
 
@@ -100,6 +96,10 @@ export class LoggerPipe implements IPipe {
 		}
 	}
 	/* eslint-enable */
+}
+
+interface ILoggerOptions {
+	awaitPromises: boolean;
 }
 
 const defaultOptions: ILoggerOptions = {
@@ -167,22 +167,70 @@ export class Logger {
 
 	}
 
+	/**
+	 * Writes a Debug Log
+	 * 
+	 * @param {string} message 
+	 * @param {Record<string, unknown>} [args] 
+	 * 
+	 * @memberOf Logger
+	 */
 	Debug(message: string, args?: Record<string, unknown>): void {
 		this.LogInternal(LogLevel.Debug, message, args);
 	}
+	/**
+	 * Writes a Info Log
+	 * 
+	 * @param {string} message 
+	 * @param {Record<string, unknown>} [args] 
+	 * 
+	 * @memberOf Logger
+	 */
 	Info(message: string, args?: Record<string, unknown>): void {
 		this.LogInternal(LogLevel.Info, message, args);
 	}
+	/**
+	 * Writes a Log
+	 * 
+	 * @param {string} message 
+	 * @param {Record<string, unknown>} [args] 
+	 * 
+	 * @memberOf Logger
+	 */
 	Log(message: string, args?: Record<string, unknown>): void {
 		this.LogInternal(LogLevel.Log, message, args);
 	}
+	/**
+	 * Writes a Warn Log
+	 * 
+	 * @param {string} message 
+	 * @param {Record<string, unknown>} [args] 
+	 * 
+	 * @memberOf Logger
+	 */
 	Warn(message: string, args?: Record<string, unknown>): void {
 		this.LogInternal(LogLevel.Warn, message, args);
 	}
+	/**
+	 * Writes a Error Log
+	 * 
+	 * @param {(string | Error)} message 
+	 * @param {Record<string, unknown>} [args] 
+	 * 
+	 * @memberOf Logger
+	 */
 	Error(message: string | Error, args?: Record<string, unknown>): void {
 		const errorMessage = (message as Error)?.message || (message as string);
 		this.LogInternal(LogLevel.Error, errorMessage, args);
 	}
+	/**
+	 * Writes a Critical Log
+	 * 
+	 * @param {(string | Error)} message 
+	 * @param {Record<string, unknown>} [args] 
+	 * 
+	 * @memberOf Logger
+	 */
 	Critical(message: string | Error, args?: Record<string, unknown>): void {
 		const errorMessage = (message as Error)?.message || (message as string);
 		this.LogInternal(LogLevel.Critical, errorMessage, args);

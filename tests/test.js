@@ -38,3 +38,4 @@ logger.Log("Everyone should see this");
 logger.Warn("Here is a Warning");
 logger.Error("Here is an Error");
 logger.Critical("Here is a Critical Application Problem");
+

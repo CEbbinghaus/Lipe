@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "typings": "lib/",
   "scripts": {
+    "test": "jest",
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -w -p tsconfig.json",
     "postinstall": "node ./util/PostInstal.js"
