@@ -1,9 +1,13 @@
 const MessageSymbol: unique symbol = Symbol("Message");
 const LogLevelSymbol: unique symbol = Symbol("LogLevel");
+const ParentSymbol: unique symbol = Symbol("Parent");
+const ChildArgsSymbol: unique symbol = Symbol("Parent");
 
 export const Symbols = {
 	Message: MessageSymbol,
 	LogLevel: LogLevelSymbol,
+	Parent: ParentSymbol,
+	ChildArgs: ChildArgsSymbol,
 };
 
 export enum LogLevel {
@@ -16,10 +20,13 @@ export enum LogLevel {
 	Critical = 1 << 5,
 }
 
+type args = Record<string|symbol, unknown>;
+
 interface IPipeData {
-	meta: Record<string, unknown>;
+	meta: args;
 	[MessageSymbol]: string;
 	[LogLevelSymbol]: LogLevel;
+	[ChildArgsSymbol]: Record<string, unknown>;
 	isTimer: boolean;
 	options: ILoggerOptions;
 }
@@ -27,6 +34,7 @@ interface IPipeData {
 type FormatterOptions = {
 	logLevel: LogLevel;
 	args: Record<string, unknown>;
+	childArgs: Record<string, unknown>;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -56,17 +64,16 @@ export class LoggerPipe {
 	}
 
 	Pipe(...pipeElements: (IFormatter | LoggerPipe)[]): LoggerPipe {
-		if (!pipeElements || pipeElements.length == 0) throw new Error("No Arguments Provided. Must supply at least one");
+		if (!pipeElements || pipeElements.length == 0)
+			throw new Error("No Arguments Provided. Must supply at least one");
 
 		const newPipe = [...this.pipe];
 
-		for(let i = 0; i < pipeElements.length; ++i){
+		for (let i = 0; i < pipeElements.length; ++i) {
 			const element = pipeElements[i];
 
-			if (isPipe(element))
-				newPipe.push.apply(newPipe, [...element.pipe]);
+			if (isPipe(element)) newPipe.push.apply(newPipe, [...element.pipe]);
 			else newPipe.push.apply(newPipe, [element]);
-			
 		}
 
 		if (this.options.allowSideEffects) {
@@ -80,6 +87,7 @@ export class LoggerPipe {
 	private async Execute({
 		[MessageSymbol]: message,
 		[LogLevelSymbol]: logLevel,
+		[ChildArgsSymbol]: childArgs,
 		meta,
 		options,
 	}: IPipeData) {
@@ -89,6 +97,7 @@ export class LoggerPipe {
 			let result = func(message, {
 				args: meta,
 				logLevel: logLevel,
+				childArgs: childArgs
 			});
 
 			// make sure to await Promises if the option is set
@@ -122,6 +131,102 @@ interface ILoggerOptions {
 const defaultOptions: ILoggerOptions = {
 	awaitPromises: false,
 };
+
+class ChildLogger {
+	private params: args;
+	private parent: Logger;
+
+	constructor(parent: Logger, params: args) {
+		this.params = params;
+		this.parent = parent;
+	}
+
+	/**
+	 * Writes a Debug Log
+	 *
+	 * @param {string} message
+	 * @param {args} [args]
+	 *
+	 * @memberOf Logger
+	 */
+	Debug(message: string, args?: args): void {
+		this.parent.Debug(message, {
+			[ChildArgsSymbol]: this.params,
+			...(args || {}),
+		});
+	}
+	/**
+	 * Writes a Info Log
+	 *
+	 * @param {string} message
+	 * @param {args} [args]
+	 *
+	 * @memberOf Logger
+	 */
+	Info(message: string, args?: args): void {
+		this.parent.Info(message, {
+			[ChildArgsSymbol]: this.params,
+			...(args || {}),
+		});
+	}
+	/**
+	 * Writes a Log
+	 *
+	 * @param {string} message
+	 * @param {args} [args]
+	 *
+	 * @memberOf Logger
+	 */
+	Log(message: string, args?: args): void {
+		this.parent.Log(message, {
+			[ChildArgsSymbol]: this.params,
+			...(args || {}),
+		});
+	}
+	/**
+	 * Writes a Warn Log
+	 *
+	 * @param {string} message
+	 * @param {args} [args]
+	 *
+	 * @memberOf Logger
+	 */
+	Warn(message: string, args?: args): void {
+		this.parent.Warn(message, {
+			[ChildArgsSymbol]: this.params,
+			...(args || {}),
+		});
+	}
+	/**
+	 * Writes a Error Log
+	 *
+	 * @param {(string | Error)} message
+	 * @param {args} [args]
+	 *
+	 * @memberOf Logger
+	 */
+	Error(message: string | Error, args?: args): void {
+		this.parent.Error(message, {
+			[ChildArgsSymbol]: this.params,
+			...(args || {}),
+		});
+	}
+	/**
+	 * Writes a Critical Log
+	 *
+	 * @param {(string | Error)} message
+	 * @param {args} [args]
+	 *
+	 * @memberOf Logger
+	 */
+	Critical(message: string | Error, args?: args): void {
+		this.parent.Critical(message, {
+			[ChildArgsSymbol]: this.params,
+			...(args || {}),
+		});
+	}
+}
+
 export class Logger {
 	private pipes: LoggerPipe[] = [
 		new LoggerPipe(undefined, { allowSideEffects: true }),
@@ -169,15 +274,18 @@ export class Logger {
 	private LogInternal(
 		type: LogLevel,
 		message: string,
-		args?: Record<string, unknown>
+		args?: Record<string | symbol, unknown>
 	) {
+		const ChildArgs = args && args[ChildArgsSymbol] as Record<string, unknown>;
+
 		// Old for loop for its (minimal) speed gain
 		for (let i = 0; i < this.pipes.length; ++i) {
 			// We do this to get around exposing the Execute method to the user
-			// @ts-ignore The Method exists but we don't want to expose it to the public. 
+			// @ts-ignore The Method exists but we don't want to expose it to the public.
 			this.pipes[i].Execute({
 				[MessageSymbol]: message,
 				[LogLevelSymbol]: type,
+				[ChildArgsSymbol]: ChildArgs,
 				isTimer: false,
 				meta: args,
 				options: this.options,
@@ -189,55 +297,55 @@ export class Logger {
 	 * Writes a Debug Log
 	 *
 	 * @param {string} message
-	 * @param {Record<string, unknown>} [args]
+	 * @param {args} [args]
 	 *
 	 * @memberOf Logger
 	 */
-	Debug(message: string, args?: Record<string, unknown>): void {
+	Debug(message: string, args?: args): void {
 		this.LogInternal(LogLevel.Debug, message, args);
 	}
 	/**
 	 * Writes a Info Log
 	 *
 	 * @param {string} message
-	 * @param {Record<string, unknown>} [args]
+	 * @param {args} [args]
 	 *
 	 * @memberOf Logger
 	 */
-	Info(message: string, args?: Record<string, unknown>): void {
+	Info(message: string, args?: args): void {
 		this.LogInternal(LogLevel.Info, message, args);
 	}
 	/**
 	 * Writes a Log
 	 *
 	 * @param {string} message
-	 * @param {Record<string, unknown>} [args]
+	 * @param {args} [args]
 	 *
 	 * @memberOf Logger
 	 */
-	Log(message: string, args?: Record<string, unknown>): void {
+	Log(message: string, args?: args): void {
 		this.LogInternal(LogLevel.Log, message, args);
 	}
 	/**
 	 * Writes a Warn Log
 	 *
 	 * @param {string} message
-	 * @param {Record<string, unknown>} [args]
+	 * @param {args} [args]
 	 *
 	 * @memberOf Logger
 	 */
-	Warn(message: string, args?: Record<string, unknown>): void {
+	Warn(message: string, args?: args): void {
 		this.LogInternal(LogLevel.Warn, message, args);
 	}
 	/**
 	 * Writes a Error Log
 	 *
 	 * @param {(string | Error)} message
-	 * @param {Record<string, unknown>} [args]
+	 * @param {args} [args]
 	 *
 	 * @memberOf Logger
 	 */
-	Error(message: string | Error, args?: Record<string, unknown>): void {
+	Error(message: string | Error, args?: args): void {
 		const errorMessage = (message as Error)?.message || (message as string);
 		this.LogInternal(LogLevel.Error, errorMessage, args);
 	}
@@ -245,12 +353,16 @@ export class Logger {
 	 * Writes a Critical Log
 	 *
 	 * @param {(string | Error)} message
-	 * @param {Record<string, unknown>} [args]
+	 * @param {args} [args]
 	 *
 	 * @memberOf Logger
 	 */
-	Critical(message: string | Error, args?: Record<string, unknown>): void {
+	Critical(message: string | Error, args?: args): void {
 		const errorMessage = (message as Error)?.message || (message as string);
 		this.LogInternal(LogLevel.Critical, errorMessage, args);
+	}
+
+	Child(args?: args): ChildLogger {
+		return new ChildLogger(this, { ...args });
 	}
 }

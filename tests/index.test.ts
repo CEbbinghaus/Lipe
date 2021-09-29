@@ -1,17 +1,17 @@
-import { IFormatter, Logger, LogLevel } from "../src/index";
+import { IFormatter, Logger, LoggerPipe, LogLevel } from "../src/index";
 import { Console } from "../src/defaults";
 
 // Helper Functions
 
 const sleep = (milliseconds) => {
-	return new Promise(resolve => setTimeout(resolve, milliseconds));
+	return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
-
 
 // Variable Definitions
 let message: string = null;
 let output = jest.fn();
 let logger = new Logger();
+let defaultPipe = new LoggerPipe([output]);
 
 // Reassign all Values with fresh copies to Isolate each test
 beforeEach(() => {
@@ -19,8 +19,8 @@ beforeEach(() => {
 	message = Math.random().toString().slice(2, 10);
 	logger = new Logger();
 	output = jest.fn();
+	defaultPipe = new LoggerPipe([output]);
 });
-
 
 // Tests
 
@@ -39,47 +39,56 @@ describe("Constructing Logger", () => {
 
 describe("Transform Messages", () => {
 	test("Can Transform the Message body", () => {
-
 		// Add Hello Transform to Pipe
 		logger.pipe.Pipe((msg) => "Hello " + msg + "!").Pipe(output);
 
 		logger.Log("World");
 
-		expect(output).toBeCalledWith("Hello World!", expect.objectContaining({logLevel: LogLevel.Log}));
+		expect(output).toBeCalledWith(
+			"Hello World!",
+			expect.objectContaining({ logLevel: LogLevel.Log })
+		);
 	});
 
 	test("Can Transform the Message body Based on Argument", () => {
-
 		// Add Hello Transform to Pipe
-		logger.pipe.Pipe((msg, {args}) => `${msg}: ${args?.type}`).Pipe(output);
+		logger.pipe
+			.Pipe((msg, { args }) => `${msg}: ${args?.type}`)
+			.Pipe(output);
 
-		logger.Error(message, {type: "Exception"});
+		logger.Error(message, { type: "Exception" });
 
-		expect(output).toBeCalledWith(`${message}: Exception`, expect.objectContaining({logLevel: LogLevel.Error}));
+		expect(output).toBeCalledWith(
+			`${message}: Exception`,
+			expect.objectContaining({ logLevel: LogLevel.Error })
+		);
 	});
 
-	test("Can Transform message Asynchronously", done => {
+	test("Can Transform message Asynchronously", (done) => {
+		logger = new Logger({ awaitPromises: true });
 
-		logger = new Logger({awaitPromises: true});
-
-		logger.pipe.Pipe(async (msg) => {
-			await sleep(200);
-			return msg + "200";
-		}).Pipe(output).Pipe((msg) => {
-			// We wait until after the output has been called to Run the Expect. Solves for the Message being Async
-			expect(output).toBeCalledWith(`${message}200`, expect.objectContaining({logLevel: LogLevel.Critical}));
-		}).Pipe(() => done());
+		logger.pipe
+			.Pipe(async (msg) => {
+				await sleep(200);
+				return msg + "200";
+			})
+			.Pipe(output)
+			.Pipe(() => {
+				// We wait until after the output has been called to Run the Expect. Solves for the Message being Async
+				expect(output).toBeCalledWith(
+					`${message}200`,
+					expect.objectContaining({ logLevel: LogLevel.Critical })
+				);
+			})
+			.Pipe(() => done());
 
 		logger.Critical(message);
-
 	});
 });
 
 describe("Output Messages", () => {
 	test("Can Log a Message to Anonymous Function", () => {
-
-
-		logger.pipe.Pipe(output);
+		logger.AddPipe(defaultPipe);
 
 		logger.Log(message);
 
@@ -100,7 +109,6 @@ describe("Output Messages", () => {
 	});
 
 	test("Message gets Passed into Pipe function", () => {
-
 		logger.pipe.Pipe((msg) => {
 			expect(msg).toBe(message);
 		});
@@ -132,5 +140,50 @@ describe("Filter Messages", () => {
 		logger.Log(message, { noPrint: true });
 
 		expect(output).toHaveBeenCalledTimes(0);
+	});
+});
+
+describe("Create Child Logger and use it", () => {
+	let child = logger.Child();
+	let key = Math.random().toString().slice(2, 8);
+
+	beforeEach(() => {
+		key = Math.random().toString().slice(2, 8);
+		child = logger.Child({ key: key });
+	});
+
+	test("Can Create a Child Logger", () => {
+		const child = logger.Child({ key: "test" });
+
+		expect(child).toHaveProperty("params");
+	});
+
+	test("Can Log a message to Child Logger", () => {
+		logger.AddPipe(defaultPipe);
+
+		child.Log(message);
+
+		expect(output).toBeCalledWith(
+			message,
+			expect.objectContaining({
+				logLevel: LogLevel.Log,
+				childArgs: expect.objectContaining({ key }),
+			})
+		);
+	});
+
+	test("Can Pass a Argument through Child Logger", () => {
+		logger.AddPipe(defaultPipe);
+
+		child.Log(message, { test: true });
+
+		expect(output).toBeCalledWith(
+			message,
+			expect.objectContaining({
+				logLevel: LogLevel.Log,
+				args: expect.objectContaining({ test: true }),
+				childArgs: expect.objectContaining({ key }),
+			})
+		);
 	});
 });
