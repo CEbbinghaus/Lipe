@@ -1,40 +1,136 @@
-import {Logger} from "../src/index";
-import {Console} from "../src/defaults";
+import { IFormatter, Logger, LogLevel } from "../src/index";
+import { Console } from "../src/defaults";
 
-test("Constructing Logger without Options", () => {
+// Helper Functions
 
-	const logger = new Logger();
-	expect(logger).toBeInstanceOf(Logger);
+const sleep = (milliseconds) => {
+	return new Promise(resolve => setTimeout(resolve, milliseconds));
+};
 
+
+// Variable Definitions
+let message: string = null;
+let output = jest.fn();
+let logger = new Logger();
+
+// Reassign all Values with fresh copies to Isolate each test
+beforeEach(() => {
+	// Generate a new Random message for each test. This is to ensure that if text gets transformed in a certain way it must stay consistent no matter the content
+	message = Math.random().toString().slice(2, 10);
+	logger = new Logger();
+	output = jest.fn();
 });
-test("Constructing Logger with Options", () => {
 
-	const logger = new Logger({
-		awaitPromises: true
+
+// Tests
+
+describe("Constructing Logger", () => {
+	test("Constructing Logger without Options", () => {
+		const logger = new Logger();
+		expect(logger).toBeInstanceOf(Logger);
 	});
-	expect(logger).toBeInstanceOf(Logger);
-
+	test("Constructing Logger with Options", () => {
+		const logger = new Logger({
+			awaitPromises: true,
+		});
+		expect(logger).toBeInstanceOf(Logger);
+	});
 });
 
-test("Constructing Logger with Options works", () => {
+describe("Transform Messages", () => {
+	test("Can Transform the Message body", () => {
 
-	const logger = new Logger({
-		awaitPromises: true
+		// Add Hello Transform to Pipe
+		logger.pipe.Pipe((msg) => "Hello " + msg + "!").Pipe(output);
+
+		logger.Log("World");
+
+		expect(output).toBeCalledWith("Hello World!", expect.objectContaining({logLevel: LogLevel.Log}));
 	});
 
-	expect(logger).toBeInstanceOf(Logger);
+	test("Can Transform the Message body Based on Argument", () => {
 
+		// Add Hello Transform to Pipe
+		logger.pipe.Pipe((msg, {args}) => `${msg}: ${args?.type}`).Pipe(output);
+
+		logger.Error(message, {type: "Exception"});
+
+		expect(output).toBeCalledWith(`${message}: Exception`, expect.objectContaining({logLevel: LogLevel.Error}));
+	});
+
+	test("Can Transform message Asynchronously", done => {
+
+		logger = new Logger({awaitPromises: true});
+
+		logger.pipe.Pipe(async (msg) => {
+			await sleep(200);
+			return msg + "200";
+		}).Pipe(output).Pipe((msg) => {
+			// We wait until after the output has been called to Run the Expect. Solves for the Message being Async
+			expect(output).toBeCalledWith(`${message}200`, expect.objectContaining({logLevel: LogLevel.Critical}));
+		}).Pipe(() => done());
+
+		logger.Critical(message);
+
+	});
 });
 
-test("Can Log a Message to Console", () => {
+describe("Output Messages", () => {
+	test("Can Log a Message to Anonymous Function", () => {
 
-	const output = jest.fn();
 
-	const logger = new Logger();
+		logger.pipe.Pipe(output);
 
-	logger.pipe.Pipe(output);
+		logger.Log(message);
 
-	logger.Log("Test");
+		expect(output).toHaveBeenCalledWith(
+			message,
+			expect.objectContaining({ logLevel: LogLevel.Log })
+		);
+	});
 
-	expect(output).toHaveBeenCalledWith("Test");	
+	test("Can Log a Message to Console", () => {
+		const consoleSpy = jest.spyOn(console, "log");
+
+		logger.pipe.Pipe(Console);
+
+		logger.Log(message);
+
+		expect(consoleSpy).toHaveBeenCalledWith(message);
+	});
+
+	test("Message gets Passed into Pipe function", () => {
+
+		logger.pipe.Pipe((msg) => {
+			expect(msg).toBe(message);
+		});
+
+		logger.Log(message);
+	});
+});
+
+describe("Filter Messages", () => {
+	test("Can Filter a Message by its Log Level", () => {
+		const Filter = (msg, { logLevel }) => {
+			if (logLevel == LogLevel.Warn) return false;
+		};
+
+		logger.pipe.Pipe(Filter).Pipe(output);
+
+		logger.Warn(message);
+
+		expect(output).toHaveBeenCalledTimes(0);
+	});
+
+	test("Can Filter a Message by its Argument", () => {
+		const Filter: IFormatter = (msg, { args }) => {
+			if (args?.noPrint) return false;
+		};
+
+		logger.pipe.Pipe(Filter).Pipe(output);
+
+		logger.Log(message, { noPrint: true });
+
+		expect(output).toHaveBeenCalledTimes(0);
+	});
 });
