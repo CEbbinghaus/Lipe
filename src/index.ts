@@ -263,7 +263,7 @@ class ChildLogger {
 	}
 }
 
-export class Logger {
+export default class Logger {
 	private pipes: LoggerPipe[] = [
 		//@ts-ignore Not publicly Accessible
 		new LoggerPipe(undefined, { allowSideEffects: true }),

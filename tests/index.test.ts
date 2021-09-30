@@ -1,4 +1,4 @@
-import { IFormatter, Logger, LoggerPipe, LogLevel } from "../src/index";
+import Logger, { IFormatter, LoggerPipe, LogLevel } from "../src/index";
 import { Console, Splat } from "../src/defaults";
 
 // Helper Functions
