@@ -31,8 +31,8 @@ interface IPipeData {
 	args: args;
 	[MessageSymbol]: string;
 	[LogLevelSymbol]: LogLevel;
-	[ChildArgsSymbol]: Record<string, unknown>;
-	isTimer: boolean;
+	meta: args;
+	isTimer?: boolean;
 	options: ILoggerOptions;
 }
 
@@ -99,19 +99,16 @@ export class LoggerPipe {
 	private async Execute({
 		[MessageSymbol]: message,
 		[LogLevelSymbol]: logLevel,
-		[ChildArgsSymbol]: childArgs,
-		args,
+		meta = {},
+		args = {},
 		options,
 	}: IPipeData) {
-		const meta = {};
-
 		for (const func of this.pipe) {
 			// Skip any non Function that made its way into the pipe
-			if(!func && typeof(func) !== "function")
-				continue;
+			if (!func && typeof func !== "function") continue;
 
 			let result = func(message, {
-				args: Object.assign(childArgs || {}, args || {}),
+				args: { ...args },
 				logLevel: logLevel,
 				meta,
 			});
@@ -131,6 +128,25 @@ export class LoggerPipe {
 			// Explicitly returning Negative value. Stop execution of the Pipe
 			if (result === false || result === null) return;
 
+			// If the resulting object is a LoggerPipe we pass it through.
+			if (result && result instanceof LoggerPipe) {
+				const pipeResult = result
+					.Execute({
+						[MessageSymbol]: message,
+						[LogLevelSymbol]: logLevel,
+						args: { ...args },
+						meta,
+						options: options,
+					})
+					.catch(console.error);
+
+				// This is still up in the air. It will wait until all of the pipe has finished executing
+				if (options.awaitPromises) await pipeResult;
+
+				// Skip past the rest since the pipe has no output
+				continue;
+			}
+
 			// We don't want to remove
 			if (typeof result !== "string")
 				throw new TypeError(
@@ -139,6 +155,7 @@ export class LoggerPipe {
 
 			message = result;
 		}
+		return;
 	}
 	/* eslint-enable */
 }
@@ -300,7 +317,7 @@ export class Logger {
 		const ChildArgs =
 			args && (args[ChildArgsSymbol] as Record<string, unknown>);
 
-		// Move this to Seperate function. Immediately Interpolate log with arguments.
+		// Move this to Separate function. Immediately Interpolate log with arguments.
 		message = InternalSplat(message, args);
 
 		for (const pipe of this.pipes) {
@@ -309,11 +326,10 @@ export class Logger {
 			pipe.Execute({
 				[MessageSymbol]: message,
 				[LogLevelSymbol]: type,
-				[ChildArgsSymbol]: ChildArgs,
 				isTimer: false,
-				args,
+				args: Object.assign(args || {}, ChildArgs || {}),
 				options: this.options,
-			});
+			}).catch(console.error);
 		}
 	}
 

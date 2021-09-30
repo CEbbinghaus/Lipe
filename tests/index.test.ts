@@ -124,6 +124,21 @@ describe("Transform Messages", () => {
 
 		expect(output).toBeCalledWith("[true]: " + message, expect.objectContaining({logLevel: LogLevel.Log}));
 	});
+
+	test("Can Route message to separate pipe", () => {
+		logger = new Logger();
+
+		logger.pipe
+			.Pipe(() => {
+				return defaultPipe;
+			});
+
+		logger.Log(message);
+
+		expect(output).toBeCalledWith(message, expect.objectContaining({logLevel: LogLevel.Log}));
+	});
+
+
 });
 
 describe("Output Messages", () => {
