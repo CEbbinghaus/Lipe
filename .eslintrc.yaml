@@ -31,4 +31,5 @@ rules:
         - ts-ignore: "allow-with-description"
           ts-nocheck: "allow-with-description"
           ts-expect-error: "allow-with-description"
+    '@typescript-eslint/no-inferrable-types': 0
 

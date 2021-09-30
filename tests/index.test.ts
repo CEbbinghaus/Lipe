@@ -1,5 +1,5 @@
 import { IFormatter, Logger, LoggerPipe, LogLevel } from "../src/index";
-import { Console } from "../src/defaults";
+import { Console, Splat } from "../src/defaults";
 
 // Helper Functions
 
@@ -84,6 +84,46 @@ describe("Transform Messages", () => {
 
 		logger.Critical(message);
 	});
+
+	test("Message gets automatically Splat", () => {
+
+		logger.AddPipe(defaultPipe);
+
+		logger.Log("{message}", { message });
+
+		expect(output).toBeCalledWith(message, expect.objectContaining({logLevel: LogLevel.Log}));
+	});
+
+	test("Can add Meta values to a Log message", () => {
+		logger = new Logger();
+
+		logger.pipe
+			.Pipe((msg, {meta}) => {
+				meta["test"] = true;
+			})
+			.Pipe((msg, obj) => {
+				expect(obj.meta).toStrictEqual(
+					expect.objectContaining({ test: true })
+				);
+			});
+
+		logger.Critical(message);
+	});
+
+	test("Can Splat Message with Pipe", () => {
+		logger = new Logger();
+
+		logger.pipe
+			.Pipe((msg, obj) => {
+				obj.meta["test"] = true;
+			})
+			.Pipe(Splat("[{test}]: {Message}"))
+			.Pipe(output);
+
+		logger.Log(message);
+
+		expect(output).toBeCalledWith("[true]: " + message, expect.objectContaining({logLevel: LogLevel.Log}));
+	});
 });
 
 describe("Output Messages", () => {
@@ -167,7 +207,7 @@ describe("Create Child Logger and use it", () => {
 			message,
 			expect.objectContaining({
 				logLevel: LogLevel.Log,
-				childArgs: expect.objectContaining({ key }),
+				args: expect.objectContaining({ key }),
 			})
 		);
 	});
@@ -181,8 +221,7 @@ describe("Create Child Logger and use it", () => {
 			message,
 			expect.objectContaining({
 				logLevel: LogLevel.Log,
-				args: expect.objectContaining({ test: true }),
-				childArgs: expect.objectContaining({ key }),
+				args: expect.objectContaining({ test: true, key }),
 			})
 		);
 	});

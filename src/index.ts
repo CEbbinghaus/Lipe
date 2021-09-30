@@ -1,3 +1,7 @@
+import { InternalSplat } from "./utils/util";
+
+export * as Defaults from "./defaults";
+
 const MessageSymbol: unique symbol = Symbol("Message");
 const LogLevelSymbol: unique symbol = Symbol("LogLevel");
 const ParentSymbol: unique symbol = Symbol("Parent");
@@ -20,10 +24,11 @@ export enum LogLevel {
 	Critical = 1 << 5,
 }
 
-type args = Record<string|symbol, unknown>;
+type args = Record<string, unknown>;
+// type  = Record<string, unknown>;
 
 interface IPipeData {
-	meta: args;
+	args: args;
 	[MessageSymbol]: string;
 	[LogLevelSymbol]: LogLevel;
 	[ChildArgsSymbol]: Record<string, unknown>;
@@ -34,14 +39,20 @@ interface IPipeData {
 type FormatterOptions = {
 	logLevel: LogLevel;
 	args: Record<string, unknown>;
-	childArgs: Record<string, unknown>;
+	meta: {
+		[key: string]: unknown;
+	};
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export type IFormatter = (message: string, options: FormatterOptions) => any;
-/* eslint-enable */
+type PipeOutput = void | string | undefined | null | boolean | LoggerPipe;
+
+export type IFormatter = (
+	message: string,
+	options: FormatterOptions
+) => PipeOutput | Promise<PipeOutput>;
 
 type PipeOptions = {
+	// To be Deleted in future
 	allowSideEffects?: boolean;
 };
 
@@ -57,7 +68,6 @@ export class LoggerPipe {
 
 	constructor();
 	constructor(pipe: IFormatter[]);
-	constructor(pipe: IFormatter[], options: PipeOptions);
 	constructor(pipe: IFormatter[] = null, options: PipeOptions = {}) {
 		this.pipe = pipe || this.pipe;
 		this.options = options;
@@ -76,11 +86,13 @@ export class LoggerPipe {
 			else newPipe.push.apply(newPipe, [element]);
 		}
 
+		// This should be removed. It causes needless problems and breaks the Immutability of each Pipe.
 		if (this.options.allowSideEffects) {
 			this.pipe = newPipe;
 			return this;
 		}
 
+		//@ts-ignore Overwrite Typescript
 		return new LoggerPipe(newPipe, this.options);
 	}
 	/* eslint-disable no-await-in-loop*/
@@ -88,31 +100,38 @@ export class LoggerPipe {
 		[MessageSymbol]: message,
 		[LogLevelSymbol]: logLevel,
 		[ChildArgsSymbol]: childArgs,
-		meta,
+		args,
 		options,
 	}: IPipeData) {
-		for (let i = 0; i < this.pipe.length; ++i) {
-			const func = this.pipe[i];
+		const meta = {};
+
+		for (const func of this.pipe) {
+			// Skip any non Function that made its way into the pipe
+			if(!func && typeof(func) !== "function")
+				continue;
 
 			let result = func(message, {
-				args: meta,
+				args: Object.assign(childArgs || {}, args || {}),
 				logLevel: logLevel,
-				childArgs: childArgs
+				meta,
 			});
 
 			// make sure to await Promises if the option is set
-			if (options.awaitPromises) result = await Promise.resolve(result);
-			else {
+			if (options.awaitPromises) {
+				result = await Promise.resolve(result);
+			} else {
 				// We need to Skip past it if it is a Promise
-				if (typeof result?.then === "function") continue;
+				if (typeof (result as Promise<PipeOutput>)?.then === "function")
+					continue;
 			}
 
 			// Output function that does not modify the Message,
-			if (result === undefined) continue;
+			if (result === undefined || result === true) continue;
 
 			// Explicitly returning Negative value. Stop execution of the Pipe
 			if (result === false || result === null) return;
 
+			// We don't want to remove
 			if (typeof result !== "string")
 				throw new TypeError(
 					`Value returned was of type ${typeof result}. Must be of type String`
@@ -145,7 +164,7 @@ class ChildLogger {
 	 * Writes a Debug Log
 	 *
 	 * @param {string} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -159,7 +178,7 @@ class ChildLogger {
 	 * Writes a Info Log
 	 *
 	 * @param {string} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -173,7 +192,7 @@ class ChildLogger {
 	 * Writes a Log
 	 *
 	 * @param {string} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -187,7 +206,7 @@ class ChildLogger {
 	 * Writes a Warn Log
 	 *
 	 * @param {string} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -201,7 +220,7 @@ class ChildLogger {
 	 * Writes a Error Log
 	 *
 	 * @param {(string | Error)} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -215,7 +234,7 @@ class ChildLogger {
 	 * Writes a Critical Log
 	 *
 	 * @param {(string | Error)} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -229,6 +248,7 @@ class ChildLogger {
 
 export class Logger {
 	private pipes: LoggerPipe[] = [
+		//@ts-ignore Not publicly Accessible
 		new LoggerPipe(undefined, { allowSideEffects: true }),
 	];
 
@@ -261,6 +281,7 @@ export class Logger {
 	}
 
 	ClearPipes(): Logger {
+		//@ts-ignore Not publicly Accessible
 		this.pipes = [new LoggerPipe(undefined, { allowSideEffects: true })];
 		return this;
 	}
@@ -276,18 +297,21 @@ export class Logger {
 		message: string,
 		args?: Record<string | symbol, unknown>
 	) {
-		const ChildArgs = args && args[ChildArgsSymbol] as Record<string, unknown>;
+		const ChildArgs =
+			args && (args[ChildArgsSymbol] as Record<string, unknown>);
 
-		// Old for loop for its (minimal) speed gain
-		for (let i = 0; i < this.pipes.length; ++i) {
+		// Move this to Seperate function. Immediately Interpolate log with arguments.
+		message = InternalSplat(message, args);
+
+		for (const pipe of this.pipes) {
 			// We do this to get around exposing the Execute method to the user
 			// @ts-ignore The Method exists but we don't want to expose it to the public.
-			this.pipes[i].Execute({
+			pipe.Execute({
 				[MessageSymbol]: message,
 				[LogLevelSymbol]: type,
 				[ChildArgsSymbol]: ChildArgs,
 				isTimer: false,
-				meta: args,
+				args,
 				options: this.options,
 			});
 		}
@@ -297,7 +321,7 @@ export class Logger {
 	 * Writes a Debug Log
 	 *
 	 * @param {string} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -308,7 +332,7 @@ export class Logger {
 	 * Writes a Info Log
 	 *
 	 * @param {string} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -319,7 +343,7 @@ export class Logger {
 	 * Writes a Log
 	 *
 	 * @param {string} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -330,7 +354,7 @@ export class Logger {
 	 * Writes a Warn Log
 	 *
 	 * @param {string} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -341,7 +365,7 @@ export class Logger {
 	 * Writes a Error Log
 	 *
 	 * @param {(string | Error)} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -353,7 +377,7 @@ export class Logger {
 	 * Writes a Critical Log
 	 *
 	 * @param {(string | Error)} message
-	 * @param {args} [args]
+	 * @param {object} [args]
 	 *
 	 * @memberOf Logger
 	 */
@@ -362,6 +386,13 @@ export class Logger {
 		this.LogInternal(LogLevel.Critical, errorMessage, args);
 	}
 
+	/**
+	 * Creates a Child Logger with its own arguments that stay persistent for all messages sent to this logger
+	 *
+	 * @param {object} arguments
+	 *
+	 * @memberOf Logger
+	 */
 	Child(args?: args): ChildLogger {
 		return new ChildLogger(this, { ...args });
 	}

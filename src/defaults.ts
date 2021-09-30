@@ -3,9 +3,11 @@ import moment from "moment";
 import { IFormatter, LogLevel } from ".";
 import { existsSync, appendFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import { InternalSplat } from "./utils/util";
 
-export const Colorizer: IFormatter = (message: string, { logLevel }) => {
+export const WithColor: IFormatter = (message: string, { meta, logLevel }) => {
 	let color: ChalkFunction;
+
 	switch (logLevel) {
 		case LogLevel.Debug:
 			color = chalk.blueBright.bold;
@@ -27,13 +29,11 @@ export const Colorizer: IFormatter = (message: string, { logLevel }) => {
 			break;
 	}
 
-	const prefix = color(LogLevel[logLevel]);
-
-	return `${prefix}: ${message}`;
+	meta.prefix = color(LogLevel[logLevel]) + ":";
 };
 
-export const Simple: IFormatter = (message: string, { logLevel }) => {
-	return `${LogLevel[logLevel]}: ${message}`;
+export const Simple: IFormatter = (message: string, { meta, logLevel }) => {
+	meta.prefix = LogLevel[logLevel] + ":";
 };
 
 export function Timestamped(format: string): IFormatter;
@@ -41,9 +41,11 @@ export function Timestamped(): IFormatter;
 export function Timestamped(
 	format = "MM/DD/YYYY HH:mm:ss"
 ): IFormatter {
-	return (message) => {
+	return (message, args) => {
+		
 		const currentTime = moment().format(format);
-		return `[${currentTime}] ${message}`;
+
+		args.meta.timestamp = currentTime;
 	};
 }
 
@@ -63,5 +65,13 @@ export const WriteToFile: ((filename: string, options?: {minLevel?: LogLevel}) =
 			return;
 
 		appendFileSync(filePath, message + "\n");
+	};
+};
+
+
+export const Splat: (format: string) => IFormatter = (
+	format: string = "{Message}",) => {
+	return function (message, { meta }) {	
+		return InternalSplat(format.replace("{Message}", message), meta);
 	};
 };
