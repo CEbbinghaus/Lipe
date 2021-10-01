@@ -49,8 +49,12 @@ export function Timestamped(
 	};
 }
 
-export const Console: IFormatter = (message) => {
-	console.log(message);
+export const Console: IFormatter = (message, {logLevel}) => {
+	// Bitwise checks to filter for Critical and Error messages
+	if(logLevel & (LogLevel.Critical | LogLevel.Error))
+		console.error(message);
+	else
+		console.log(message);
 };
 
 export const WriteToFile: ((filename: string, options?: {minLevel?: LogLevel}) => IFormatter) = (filename, options) => {

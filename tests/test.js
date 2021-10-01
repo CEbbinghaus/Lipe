@@ -1,7 +1,7 @@
 // We don't need to worry about code quality in this testing file
 /* eslint-disable */
 
-const { Logger, LoggerPipe, LogLevel, Defaults: { WithColor, Console, Simple, Timestamped, WriteToFile, Splat } } = require("../lib/index");
+const { default: Logger, LoggerPipe, LogLevel, Defaults: { WithColor, Console, Simple, Timestamped, WriteToFile, Splat } } = require("../lib/index");
 
 const noSecret = (message, {args}) => {
 	if (args?.isSecret)
@@ -45,4 +45,3 @@ logger.Critical("Here is a Critical Application Problem");
 let childLogger = logger.Child();
 
 childLogger.Info("A log from a Child Logger");
-

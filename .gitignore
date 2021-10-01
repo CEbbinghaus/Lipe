@@ -133,7 +133,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# Zettlr Generated Files
+.ztr-directory
 
 # Custom Ignores
-
 lib/*
+

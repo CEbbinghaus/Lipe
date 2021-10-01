@@ -6,6 +6,6 @@ end_of_line = lf
 insert_final_newline = true
 
 # Code files
-[**.{ts,js,json}]
+[**.{ts,js,mjs,json}]
 indent_style = tab
 indent_size = 4
