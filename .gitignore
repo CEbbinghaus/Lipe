@@ -138,5 +138,8 @@ dist
 # Serverless Webpack directories
 .webpack/
 
+# Generated Files
+lib
+
 # Zettlr Generated Files
 .ztr-directory
