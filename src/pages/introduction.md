@@ -3,13 +3,11 @@ title: Introduction
 layout: ../layouts/MainLayout.astro
 ---
 
+## Core
 
-## Install
-!TO BE CREATED!
+The logger framework is based around [Pipes](./pipes) and [Transforms](./transforming). These two concepts make up the core of the library allowing for near infinite customization and expandibility.
 
 ## Usage
-
-Getting started is as easy as Requiring the Package, Constructing the Logger, Defining the output and Logging the message.
 
 ```javascript
 const {default: Logger} = require("Logger");
@@ -20,6 +18,7 @@ logger.pipe.Pipe(console.log);
 
 logger.Log("Hello World!");
 ```
+
 This however results in some pretty ugly output
 
 `Hello World! { args: {}, logLevel: 4, meta: {} }`
@@ -45,4 +44,3 @@ we also have to update our piping to use this new method:
 logger.pipe.Pipe(Console);
 ``` 
 And now its using the built in module to log to the console. This means that Critical and Error logs will now be sent to stderr instead of stdout.
-

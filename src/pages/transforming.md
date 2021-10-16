@@ -30,7 +30,7 @@ const logger = new Logger();
 logger.AddPipe(new LoggerPipe([
     (msg) => {
         Object.values(config).forEach(v => {
-            msg = msg.replace(v, "[REDACTEd]") 
+            msg = msg.replace(v, "[REDACTED]") 
         })
         return msg;
     },

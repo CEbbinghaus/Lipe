@@ -35,11 +35,14 @@ export const SIDEBAR: {[key: string]: {text: string, link?: string, header?: boo
 };
 
 SIDEBAR.en = [
-	{ text: "Section Header", header: true },
+	{ text: "Getting Started", header: true },
+	{ text: "Quick Start", link: "quickstart" },
 	{ text: "Introduction", link: "introduction" },
+
+	{ text: "Documentation", header: true },
+
 	{ text: "Pipes", link: "pipes" },
 	{ text: "Transforming", link: "transforming" },
 
-	// { text: "Another Section", header: true },
 	// { text: "Page 4", link: "page-4" },
 ];
