@@ -19,7 +19,7 @@ export const KNOWN_LANGUAGES = {
 };
 
 // Uncomment this to add an "Edit this page" button to every page of documentation.
-export const GITHUB_EDIT_URL = `https://github.com/CEbbinghaus/Logger/docs/docs/`;
+export const GITHUB_EDIT_URL = `https://github.com/CEbbinghaus/Logger/blob/docs/`;
 
 // Uncomment this to add an "Join our Community" button to every page of documentation.
 export const COMMUNITY_INVITE_URL = `https://astro.build/chat`;
@@ -31,8 +31,7 @@ export const COMMUNITY_INVITE_URL = `https://astro.build/chat`;
 //   apiKey: 'XXXXXXXXXX',
 // }
 
-export const SIDEBAR: {[key: string]: {text: string, link?: string, header?: boolean, }[]} = {
-};
+export const SIDEBAR: {[key: string]: {text: string, link?: string, header?: boolean, }[]} = {};
 
 SIDEBAR.en = [
 	{ text: "Getting Started", header: true },
