@@ -1,7 +1,11 @@
-// We don't need to worry about code quality in this testing file
-
-const { default: Logger, LoggerPipe, LogLevel } = require("../lib/index");
-const { PrefixWithColor, Console, Timestamped, WriteToFile, Splat } = require("../lib/defaults");
+import Logger, { LoggerPipe } from "logger";
+import {
+	PrefixWithColor,
+	Console,
+	Timestamped,
+	WriteToFile,
+	Splat,
+} from "logger/defaults";
 
 const noSecret = (message, {args}) => {
 	if (args?.isSecret)

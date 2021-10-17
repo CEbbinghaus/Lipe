@@ -4,7 +4,7 @@
 	"compilerOptions": {
 		"newLine": "lf",
 		"target": "ES6",
-		"module": "CommonJS",
+		"module": "es2020",
 		"moduleResolution": "node",
 		"allowJs": true,
 		"esModuleInterop": true,
