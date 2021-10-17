@@ -1,5 +1,4 @@
 import Logger, { IFormatter, LoggerPipe, LogLevel } from "../src/index";
-import { Console, Splat } from "../src/defaults";
 
 // Helper Functions
 
@@ -110,21 +109,6 @@ describe("Transform Messages", () => {
 		logger.Critical(message);
 	});
 
-	test("Can Splat Message with Pipe", () => {
-		logger = new Logger();
-
-		logger.pipe
-			.Pipe((msg, obj) => {
-				obj.meta["test"] = true;
-			})
-			.Pipe(Splat("[{test}]: {Message}"))
-			.Pipe(output);
-
-		logger.Log(message);
-
-		expect(output).toBeCalledWith("[true]: " + message, expect.objectContaining({logLevel: LogLevel.Log}));
-	});
-
 	test("Can Route message to separate pipe", () => {
 		logger = new Logger();
 
@@ -151,16 +135,6 @@ describe("Output Messages", () => {
 			message,
 			expect.objectContaining({ logLevel: LogLevel.Log })
 		);
-	});
-
-	test("Can Log a Message to Console", () => {
-		const consoleSpy = jest.spyOn(console, "log");
-
-		logger.pipe.Pipe(Console);
-
-		logger.Log(message);
-
-		expect(consoleSpy).toHaveBeenCalledWith(message);
 	});
 
 	test("Message gets Passed into Pipe function", () => {
@@ -213,10 +187,33 @@ describe("Create Child Logger and use it", () => {
 		expect(child).toHaveProperty("params");
 	});
 
+	test("Can Create a Child Logger from a ChildLogger", () => {
+		const child = logger.Child({ key: "test" }).Child({key: "test2"});
+
+		expect(child).toHaveProperty("params");
+	});
+
 	test("Can Log a message to Child Logger", () => {
 		logger.AddPipe(defaultPipe);
 
+
 		child.Log(message);
+
+		expect(output).toBeCalledWith(
+			message,
+			expect.objectContaining({
+				logLevel: LogLevel.Log,
+				args: expect.objectContaining({ key }),
+			})
+		);
+	});
+
+	test("Can Log a message to GrandChild Logger", () => {
+		logger.AddPipe(defaultPipe);
+
+		const grandChild = child.Child();
+
+		grandChild.Log(message);
 
 		expect(output).toBeCalledWith(
 			message,
@@ -240,4 +237,49 @@ describe("Create Child Logger and use it", () => {
 			})
 		);
 	});
+
+	test("Can Pass a Argument through GrandChild Logger", () => {
+		logger.AddPipe(defaultPipe);
+
+		const newKey = key + "foo";
+
+		const grandChild = child.Child({ key: newKey });
+
+		grandChild.Log(message, { test: key });
+
+		expect(output).toBeCalledWith(
+			message,
+			expect.objectContaining({
+				logLevel: LogLevel.Log,
+				args: expect.objectContaining({ test: key, key: newKey }),
+			})
+		);
+	});
 });
+
+
+describe("Pipes and their usage", () => {
+	test("Pipe remains Immutable", () => {
+		const pipe = new LoggerPipe();
+
+		pipe.Pipe(output);
+
+		logger.AddPipe(pipe);
+
+		logger.Log("Foo");
+
+		expect(output).toHaveBeenCalledTimes(0);
+	})
+
+	test("Pipes can have elements added to them", () => {
+		let pipe = new LoggerPipe();
+
+		pipe = pipe.Pipe(output);
+
+		logger.AddPipe(pipe);
+
+		logger.Log(message);
+
+		expect(output).toHaveBeenCalledWith(message, expect.objectContaining({logLevel: LogLevel.Log}));
+	});
+})

@@ -2,6 +2,7 @@
 	"include": ["src"],
 	"exclude": ["node_modules"],
 	"compilerOptions": {
+		"newLine": "lf",
 		"target": "ES6",
 		"module": "CommonJS",
 		"moduleResolution": "node",
@@ -10,7 +11,7 @@
 		"declaration": true,
 		"declarationDir": "lib",
 		"sourceMap": true,
-		"sourceRoot": "./src",
+		"sourceRoot": "/src",
 		"outDir": "lib"
 	}
 }

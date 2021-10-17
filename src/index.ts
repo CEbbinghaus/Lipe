@@ -1,6 +1,6 @@
 import { InternalSplat } from "./utils/util";
 
-export * as Defaults from "./defaults";
+// export * as Defaults from "./defaults";
 
 const MessageSymbol: unique symbol = Symbol("Message");
 const LogLevelSymbol: unique symbol = Symbol("LogLevel");
@@ -24,8 +24,8 @@ export enum LogLevel {
 	Critical = 1 << 5,
 }
 
+type symbolArgs = Record<string | symbol, unknown>;
 type args = Record<string, unknown>;
-// type  = Record<string, unknown>;
 
 interface IPipeData {
 	args: args;
@@ -61,6 +61,7 @@ type PipeOptions = {
 function isPipe(pipe: any): pipe is LoggerPipe {
 	return pipe && pipe?.Pipe && typeof pipe.Pipe === "function";
 }
+
 export class LoggerPipe {
 	private pipe: IFormatter[] = [];
 
@@ -168,13 +169,34 @@ const defaultOptions: ILoggerOptions = {
 	awaitPromises: false,
 };
 
-class ChildLogger {
-	private params: args;
-	private parent: Logger;
+interface ILogger {
+	Debug(message: string, args?: args): void;
+	Info(message: string, args?: args): void;
+	Log(message: string, args?: args): void;
+	Warn(message: string, args?: args): void;
+	Error(message: string | Error, args?: args): void;
+	Critical(message: string | Error, args?: args): void;
+	Child(args?: args): ILogger;
+}
 
-	constructor(parent: Logger, params: args) {
+class ChildLogger implements ILogger {
+	private params: args;
+	private parent: ILogger;
+
+	constructor(parent: ILogger, params: args) {
 		this.params = params;
 		this.parent = parent;
+	}
+
+	private handleArgs(passedArgs?: symbolArgs): args{
+		const args: symbolArgs = passedArgs || {};
+
+		const childArgs = args[ChildArgsSymbol] || this.params;
+
+		return {
+			[ChildArgsSymbol]: childArgs,
+			...(args || {}),
+		};
 	}
 
 	/**
@@ -186,11 +208,9 @@ class ChildLogger {
 	 * @memberOf Logger
 	 */
 	Debug(message: string, args?: args): void {
-		this.parent.Debug(message, {
-			[ChildArgsSymbol]: this.params,
-			...(args || {}),
-		});
+		this.parent.Debug(message, this.handleArgs(args));
 	}
+
 	/**
 	 * Writes a Info Log
 	 *
@@ -200,11 +220,9 @@ class ChildLogger {
 	 * @memberOf Logger
 	 */
 	Info(message: string, args?: args): void {
-		this.parent.Info(message, {
-			[ChildArgsSymbol]: this.params,
-			...(args || {}),
-		});
+		this.parent.Info(message, this.handleArgs(args));
 	}
+
 	/**
 	 * Writes a Log
 	 *
@@ -214,11 +232,9 @@ class ChildLogger {
 	 * @memberOf Logger
 	 */
 	Log(message: string, args?: args): void {
-		this.parent.Log(message, {
-			[ChildArgsSymbol]: this.params,
-			...(args || {}),
-		});
+		this.parent.Log(message, this.handleArgs(args));
 	}
+
 	/**
 	 * Writes a Warn Log
 	 *
@@ -228,11 +244,9 @@ class ChildLogger {
 	 * @memberOf Logger
 	 */
 	Warn(message: string, args?: args): void {
-		this.parent.Warn(message, {
-			[ChildArgsSymbol]: this.params,
-			...(args || {}),
-		});
+		this.parent.Warn(message, this.handleArgs(args));
 	}
+
 	/**
 	 * Writes a Error Log
 	 *
@@ -242,11 +256,9 @@ class ChildLogger {
 	 * @memberOf Logger
 	 */
 	Error(message: string | Error, args?: args): void {
-		this.parent.Error(message, {
-			[ChildArgsSymbol]: this.params,
-			...(args || {}),
-		});
+		this.parent.Error(message, this.handleArgs(args));
 	}
+
 	/**
 	 * Writes a Critical Log
 	 *
@@ -256,10 +268,18 @@ class ChildLogger {
 	 * @memberOf Logger
 	 */
 	Critical(message: string | Error, args?: args): void {
-		this.parent.Critical(message, {
-			[ChildArgsSymbol]: this.params,
-			...(args || {}),
-		});
+		this.parent.Critical(message, this.handleArgs(args));
+	}
+
+	/**
+	 * Creates a Child Logger with its own arguments that stay persistent for all messages sent to this logger
+	 *
+	 * @param {object} arguments
+	 *
+	 * @memberOf Logger
+	 */
+	Child(args?: args): ILogger {
+		return new ChildLogger(this, Object.assign({ ...this.params }, args));
 	}
 }
 
@@ -303,12 +323,6 @@ export default class Logger {
 		return this;
 	}
 
-	private getCallerLine(err: Error) {
-		const caller_line = err.stack.split("\n")[4];
-		const index = caller_line.indexOf("at ");
-		return caller_line.slice(index + 2, caller_line.length);
-	}
-
 	private LogInternal(
 		type: LogLevel,
 		message: string,
@@ -344,6 +358,7 @@ export default class Logger {
 	Debug(message: string, args?: args): void {
 		this.LogInternal(LogLevel.Debug, message, args);
 	}
+
 	/**
 	 * Writes a Info Log
 	 *
@@ -355,6 +370,7 @@ export default class Logger {
 	Info(message: string, args?: args): void {
 		this.LogInternal(LogLevel.Info, message, args);
 	}
+
 	/**
 	 * Writes a Log
 	 *
@@ -366,6 +382,7 @@ export default class Logger {
 	Log(message: string, args?: args): void {
 		this.LogInternal(LogLevel.Log, message, args);
 	}
+
 	/**
 	 * Writes a Warn Log
 	 *
@@ -377,6 +394,7 @@ export default class Logger {
 	Warn(message: string, args?: args): void {
 		this.LogInternal(LogLevel.Warn, message, args);
 	}
+
 	/**
 	 * Writes a Error Log
 	 *
@@ -389,6 +407,7 @@ export default class Logger {
 		const errorMessage = (message as Error)?.message || (message as string);
 		this.LogInternal(LogLevel.Error, errorMessage, args);
 	}
+
 	/**
 	 * Writes a Critical Log
 	 *
