@@ -1,6 +1,6 @@
 {
 	"name": "lipe",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "A Logging library with full customizability",
 	"typings": "lib/",
 	"type": "module",
