@@ -1,19 +1,17 @@
-// We don't need to worry about code quality in this testing file
-/* eslint-disable */
-
-const { default: Logger, LoggerPipe, LogLevel, Defaults: { WithColor, Console, Simple, Timestamped, WriteToFile, Splat } } = require("../lib/index");
+import Logger, { LoggerPipe } from "logger";
+import {
+	PrefixWithColor,
+	Console,
+	Timestamped,
+	WriteToFile,
+	Splat,
+} from "logger/defaults";
 
 const noSecret = (message, {args}) => {
 	if (args?.isSecret)
 		return false;
 
 	return message;
-}
-
-const Wait5Second = () => {
-	return new Promise((res, rej) => {
-		setTimeout(res, Math.random() * 5000);
-	})
 }
 
 const logger = new Logger({ title: "Test", encoding: "UTF8" });
@@ -27,9 +25,18 @@ const FilePipe = new LoggerPipe()
 	.Pipe(Splat("{timestamp} {Message}"))
 	.Pipe(WriteToFile("test.log"));
 
-logger.ClearPipes()
-	.AddPipe(FilePipe.Pipe(WriteToFile("Errors.log", {minLevel: LogLevel.Error})))
-	.AddPipe(basePipe.Pipe(Wait5Second).Pipe(WithColor).Pipe(Timestamped()).Pipe(Splat("[{timestamp}] {prefix} {Message}")).Pipe(Console));
+logger
+	.ClearPipes()
+	.AddPipe(
+		FilePipe.Pipe(WriteToFile("Errors.log", { minLevel: LogLevel.Error }))
+	)
+	.AddPipe(
+		basePipe
+			.Pipe(PrefixWithColor)
+			.Pipe(Timestamped())
+			.Pipe(Splat("[{timestamp}] {prefix} {Message}"))
+			.Pipe(Console())
+	);
 
 logger.Log("Nobody should see this", { isSecret: true });
 logger.Log("Everyone should see this");

@@ -1,39 +1,52 @@
 {
-  "name": "logger",
-  "version": "0.1.1",
-  "description": "A Logging library with full customizability",
-  "main": "lib/index.js",
-  "typings": "lib/",
-  "scripts": {
-    "test": "jest",
-    "build": "tsc -p tsconfig.json",
-    "watch": "tsc -w -p tsconfig.json",
-    "postinstall": "node ./util/PostInstal.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cebbinghaus/Logger"
-  },
-  "keywords": [
-    "logging",
-    "logger"
-  ],
-  "author": "CEbbinghaus",
-  "license": "ISC",
-  "optionalDependencies": {
-    "timer": "github:CEbbinghaus/timer"
-  },
-  "devDependencies": {
-    "@types/jest": "^27.0.1",
-    "@typescript-eslint/eslint-plugin": "^4.30.0",
-    "@typescript-eslint/parser": "^4.30.0",
-    "eslint": "^7.32.0",
-    "jest": "^27.1.0",
-    "ts-jest": "^27.0.5"
-  },
-  "dependencies": {
-    "chalk": "^4.1.2",
-    "moment": "^2.29.1",
-    "typescript": "^4.4.2"
-  }
+	"name": "lipe",
+	"version": "0.1.1",
+	"description": "A Logging library with full customizability",
+	"typings": "lib/",
+	"type": "module",
+	
+	"exports": {
+		".": {
+			"default": "./lib/index.js"
+		},
+		"./defaults":{
+			"default": "./lib/defaults.js"
+		}
+	},
+	"scripts": {
+		"test": "jest",
+		"test:script": "node --es-module-specifier-resolution=node ./tests/test.js",
+		"build": "tsc -p tsconfig.json",
+		"watch": "tsc -w -p tsconfig.json",
+		"postinstall": "node ./util/PostInstal.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cebbinghaus/Logger"
+	},
+	"keywords": [
+		"logging",
+		"logger",
+		"pipe",
+		"lightweight",
+		"expandable"
+	],
+	"author": "CEbbinghaus",
+	"license": "ISC",
+	"peerDependencies": {
+		"timer": "github:CEbbinghaus/timer",
+		"jest": "^27.1.0",
+		"ts-jest": "^27.0.5",
+		"@typescript-eslint/eslint-plugin": "^4.30.0",
+		"@typescript-eslint/parser": "^4.30.0",
+		"eslint": "^7.32.0",
+		"@types/jest": "^27.0.1"
+	},
+	"devDependencies": {
+		"typescript": "^4.4.2"
+	},
+	"dependencies": {
+		"chalk": "^4.1.2",
+		"moment": "^2.29.1"
+	}
 }
