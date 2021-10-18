@@ -1,5 +1,5 @@
 {
-	"name": "logger",
+	"name": "lipe",
 	"version": "0.1.1",
 	"description": "A Logging library with full customizability",
 	"typings": "lib/",
@@ -26,7 +26,10 @@
 	},
 	"keywords": [
 		"logging",
-		"logger"
+		"logger",
+		"pipe",
+		"lightweight",
+		"expandable"
 	],
 	"author": "CEbbinghaus",
 	"license": "ISC",
