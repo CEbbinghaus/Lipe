@@ -1,7 +1,3 @@
-# Logger Documentation
+# Lipe Documentation
 
-The Documentation for the Logger package written in Markdown and Astro.
-
-
-
-
+The Documentation for the Lipe package written in Markdown and Astro.

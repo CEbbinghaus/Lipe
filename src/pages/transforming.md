@@ -3,7 +3,7 @@ title: Transforming
 layout: ../layouts/MainLayout.astro
 ---
 
-The act of transforming is to take a value and change it or manipulate it in some way. In Logger this is achieved by passing a function to the `Pipe` method on the LoggerPipe.
+The act of transforming is to take a value and change it or manipulate it in some way. In Lipe this is achieved by passing a function to the `Pipe` method on the LoggerPipe.
 
 ```javascript
 const pipe = new LoggerPipe().Pipe((message) => "Hello " + message);

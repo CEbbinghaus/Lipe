@@ -2,7 +2,7 @@
 title: "Quick Start"
 layout: ../layouts/MainLayout.astro
 ---
-This page will get you started with Logger in no time.
+This page will get you started with Lipe in no time.
 
 ## Install
 * Requires Node >=14.x
@@ -10,14 +10,14 @@ This page will get you started with Logger in no time.
 
 In your local npm project run:
 
-`$ npm i Logger`
+`$ npm i lipe`
 
 ## Usage
 
 Getting started is as easy as Requiring the Package, Constructing the Logger, Defining the output and Logging the message.
 
 ```javascript
-const {default: Logger} = require("Logger");
+const {default: Logger} = require("lipe");
 
 let logger = new Logger();
 

@@ -5,12 +5,12 @@ layout: ../layouts/MainLayout.astro
 
 ## Core
 
-The logger framework is based around [Pipes](./pipes) and [Transforms](./transforming). These two concepts make up the core of the library allowing for near infinite customization and expandibility.
+The Lipe framework is based around [Pipes](./pipes) and [Transforms](./transforming). These two concepts make up the core of the library allowing for near infinite customization and expandibility.
 
 ## Usage
 
 ```javascript
-const {default: Logger} = require("Logger");
+const {default: Logger} = require("lipe");
 
 let logger = new Logger();
 
@@ -37,7 +37,7 @@ with this we have successfully implemented the most basic of the Logging. So let
 
 this time we are adding an additional object to our require line to get the Console function
 ```javascript
-const{default:Logger, Defaults:{Console}}=require("../lib");
+const{default:Logger, Defaults:{Console}}=require("lipe");
 ```
 we also have to update our piping to use this new method:
 ```javascript
