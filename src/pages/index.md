@@ -1,8 +1,9 @@
 ---
-title: Logger
+title: Lipe
 layout: ../layouts/MainLayout.astro
 ---
-A Lightweight yet powerful Logging library for any use case.
+Lipe (a contraction of Logging and Pipe) is a Lightweight yet powerful Logging library for any use case. It allows the developer to specify exactly where the data should end up and in which form.
+It supplies a lot of built in functions for handling 
 
 ## Motivation
 Logger was created to be a Flexible and Extendable way of creating Logs and routing them to where they are needed. Much like winston, bunyan and pino its flexible and allows for a great deal of customization.
@@ -11,7 +12,7 @@ Logger was created to be a Flexible and Extendable way of creating Logs and rout
 Basic usage is quite easy. If all that is needed is to replace the default JS console:
 
 ```javascript
-const {default: Logger} = require("Logger");
+const {default: Logger} = require("lipe");
 
 let logger = new Logger();
 

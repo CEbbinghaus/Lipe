@@ -1,9 +1,10 @@
 {
-  "name": "@example/docs",
+  "name": "@lipe/docs",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "serve": "astro dev",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview"

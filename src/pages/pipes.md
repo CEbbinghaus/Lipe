@@ -8,7 +8,7 @@ Pipes are the path that logs travel down after they have been emitted by the cod
 ## Basics
 The class responsible for piping is the LoggerPipe accessible directly from inside the required object
 ```javascript
-const {LoggerPipe} = require("Logger");
+const {LoggerPipe} = require("lipe");
 ```
 It has a optional argument letting you construct the pipe with steps already defined
 ```javascript
