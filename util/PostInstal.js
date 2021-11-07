@@ -12,6 +12,8 @@ const script = process.argv.shift();
 const args = process.argv;
 const dir = path.join(cwd(), args[0] || "lib")
 
+console.log("Postinstall Script Started");
+
 if(!existsSync(dir)){
 	exec("npm run build", (error, stdout, stderr) => {
 		if(error)
@@ -21,3 +23,5 @@ if(!existsSync(dir)){
 	})
 }else
 	console.log("Skipping Build. Lib already exists")
+
+console.log("Postinstall Script finished");
