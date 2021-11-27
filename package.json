@@ -18,7 +18,8 @@
 		"test:script": "node --es-module-specifier-resolution=node ./tests/test.js",
 		"build": "tsc -p tsconfig.json",
 		"watch": "tsc -w -p tsconfig.json",
-		"postinstall": "node ./util/PostInstal.js"
+		"postinstall": "node ./util/PostInstal.js",
+		"prepublish": "build"
 	},
 	"repository": {
 		"type": "git",
@@ -34,13 +35,15 @@
 	"author": "CEbbinghaus",
 	"license": "ISC",
 	"peerDependencies": {
-		"timer": "github:CEbbinghaus/timer",
 		"jest": "^27.1.0",
 		"ts-jest": "^27.0.5",
 		"@typescript-eslint/eslint-plugin": "^4.30.0",
 		"@typescript-eslint/parser": "^4.30.0",
 		"eslint": "^7.32.0",
 		"@types/jest": "^27.0.1"
+	},
+	"optionalDependencies": {
+		"timer": "github:CEbbinghaus/timer"
 	},
 	"devDependencies": {
 		"typescript": "^4.4.2"
