@@ -1,6 +1,9 @@
 import ts from "typescript";
 import * as fs from "fs";
 import glob from "glob";
+import { fileURLToPath } from "url";
+
+const IsMainModule = (process.argv[1] === fileURLToPath(import.meta.url));
 
 const ModuleTable = {
 	[0]: "None",
@@ -29,7 +32,7 @@ const ModuleTable = {
  * @param {ts.CompilerOptions} options
  * @returns {boolean} Success
  */
-function compile(fileNames, options) {
+function RunCompiler(fileNames, options) {
 	const host = ts.createCompilerHost(options);
 	let program = ts.createProgram(fileNames, options, host);
 	let emitResult = program.emit();
@@ -68,52 +71,72 @@ function compile(fileNames, options) {
 	return !emitResult.emitSkipped;
 }
 
-const rawData = fs.readFileSync("./tsconfig.json").toString();
-const cleanData = rawData.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => g ? "" : m);
 /**
- * @type {../tsconfig.json}
+ * Compiles the Project with all variations
+ * @returns {boolean} Success
+ * @export 
  */
-const tsconfig = JSON.parse(cleanData);
+export function Compile(){
+	const rawData = fs.readFileSync("./tsconfig.json").toString();
+	const cleanData = rawData.replace(
+		/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
+		(m, g) => (g ? "" : m)
+	);
+	/**
+	 * @type {../tsconfig.json}
+	 */
+	const tsconfig = JSON.parse(cleanData);
 
-const compilerOptions = tsconfig.compilerOptions;
+	const compilerOptions = tsconfig.compilerOptions;
 
-if (!compilerOptions["moduleResolution"] || compilerOptions["moduleResolution"].toLowerCase() != "node")
-	throw "Module resolution must be Node";
+	if (
+		!compilerOptions["moduleResolution"] ||
+		compilerOptions["moduleResolution"].toLowerCase() != "node"
+	)
+		throw "Module resolution must be Node";
 
-compilerOptions["moduleResolution"] = ts.ModuleResolutionKind.NodeJs;
+	compilerOptions["moduleResolution"] = ts.ModuleResolutionKind.NodeJs;
 
-const Modules = tsconfig.modules;
-// const Targets = tsconfig.targets;
+	const Modules = tsconfig.modules;
+	// const Targets = tsconfig.targets;
 
-if(!Modules || !Modules.length)
-	throw "Must Define at least One Module to Compile to";
+	if (!Modules || !Modules.length)
+		throw "Must Define at least One Module to Compile to";
 
-// if (!Targets || !Targets.Length)
-// 	throw "Must Define at least One Target to Compile to";
+	// if (!Targets || !Targets.Length)
+	// 	throw "Must Define at least One Target to Compile to";
 
-console.log(`Compiling Lipe with Modules: {${Modules}}`); // and Targets: {${Targets}}
+	console.log(`Compiling Lipe with Modules: {${Modules}}`); // and Targets: {${Targets}}
 
+	glob("src/**.ts", (err, files) => {
+		for (let module of Modules) {
+			if (err) {
+				console.error(err);
+				return;
+			}
 
-glob("src/**.ts", (err, files) => {
-	for(let module of Modules)
-	{
-		if (err) {
-			console.error(err);
-			return;
+			const options = Object.assign({}, compilerOptions);
+
+			if (ModuleTable[module] === undefined)
+				throw `Module ${module} is missing its mapping`;
+
+			options["module"] = ModuleTable[module];
+			options["outDir"] += `/${module}`;
+			// options["target"] = Targets[0];
+
+			const CompilerFailed = !RunCompiler(files, options);
+
+			if (CompilerFailed)
+				if (IsMainModule)
+					process.exit(1);
+				else
+					return false;
 		}
-		
-		const options = Object.assign({}, compilerOptions);
-	
-		if(ModuleTable[module] === undefined)
-			throw `Module ${module} is missing its mapping`;
+		return true;
+	});
 
-		options["module"] = ModuleTable[module];
-		options["outDir"] += `/${module}`;
-		// options["target"] = Targets[0];
-	
-		if(!compile(files, options))
-			process.exit(1);
-	}
-});
+}
 
-
+if (IsMainModule) {
+	Compile();
+}
