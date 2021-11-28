@@ -2,7 +2,7 @@
 	"name": "lipe",
 	"version": "0.1.2",
 	"description": "A Logging library with full customizability",
-	"typings": "lib/",
+	"typings": "lib/types",
 	"type": "module",
 	"exports": {
 		".": {

@@ -12,7 +12,7 @@
 		"allowJs": true,
 		"esModuleInterop": true,
 		"declaration": true,
-		"declarationDir": "lib",
+		"declarationDir": "lib/types",
 		"sourceMap": true,
 		"sourceRoot": "/src",
 		"outDir": "lib"
