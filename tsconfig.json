@@ -1,13 +1,14 @@
 {
-	"targets": ["ES5", "ES6"],
-	"modules": ["es2020"],
+	"modules": ["ES6", "CommonJS"],
+
+	
 	"include": ["src"],
 	"exclude": ["node_modules"],
 	"compilerOptions": {
 		"newLine": "lf",
 		"target": "ES6",
-		"module": "es2020",
-		"moduleResolution": "Node",
+		// "module": "ES6",
+		"moduleResolution": "node",
 		"allowJs": true,
 		"esModuleInterop": true,
 		"declaration": true,

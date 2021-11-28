@@ -2,11 +2,32 @@ import ts from "typescript";
 import * as fs from "fs";
 import glob from "glob";
 
+const ModuleTable = {
+	[0]: "None",
+	None: 0,
+	CommonJS: 1,
+	[1]: "CommonJS",
+	AMD: 2,
+	[2]: "AMD",
+	UMD: 3,
+	[3]: "UMD",
+	System: 4,
+	[3]: "System",
+	ES2015: 5,
+	ES6: 5,
+	[5]: "ES6",
+	ES2020: 6,
+	[6]: "ES2020",
+	ESNext: 99,
+	[99]: "ESNext",
+};
+
 /**
  * Compiles Project
  * @param {string[]} fileNames
  * @param {ts.CompilerOptions} options
  * @param {ts.CompilerOptions} options
+ * @returns {boolean} Success
  */
 function compile(fileNames, options) {
 	const host = ts.createCompilerHost(options);
@@ -39,29 +60,60 @@ function compile(fileNames, options) {
 		}
 	});
 
-	let exitCode = emitResult.emitSkipped ? 1 : 0;
-	console.log(`Process exiting with code '${exitCode}'.`);
-	process.exit(exitCode);
+	if(emitResult.emitSkipped)
+		console.log(`Compile Failed for Module ${ModuleTable[options.module]}`);
+	else
+		console.log(`Compile Finished for Module ${ModuleTable[options.module]}`);
+	
+	return !emitResult.emitSkipped;
 }
 
+const rawData = fs.readFileSync("./tsconfig.json").toString();
+const cleanData = rawData.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => g ? "" : m);
 /**
  * @type {../tsconfig.json}
  */
-const tsconfig = JSON.parse(fs.readFileSync("./tsconfig.json"));
+const tsconfig = JSON.parse(cleanData);
 
 const compilerOptions = tsconfig.compilerOptions;
 
+if (!compilerOptions["moduleResolution"] || compilerOptions["moduleResolution"].toLowerCase() != "node")
+	throw "Module resolution must be Node";
+
+compilerOptions["moduleResolution"] = ts.ModuleResolutionKind.NodeJs;
+
+const Modules = tsconfig.modules;
+// const Targets = tsconfig.targets;
+
+if(!Modules || !Modules.length)
+	throw "Must Define at least One Module to Compile to";
+
+// if (!Targets || !Targets.Length)
+// 	throw "Must Define at least One Target to Compile to";
+
+console.log(`Compiling Lipe with Modules: {${Modules}}`); // and Targets: {${Targets}}
+
+
 glob("src/**.ts", (err, files) => {
-	if (err) {
-		console.error(err);
-		return;
+	for(let module of Modules)
+	{
+		if (err) {
+			console.error(err);
+			return;
+		}
+		
+		const options = Object.assign({}, compilerOptions);
+	
+		if(ModuleTable[module] === undefined)
+			throw `Module ${module} is missing its mapping`;
+
+		options["module"] = ModuleTable[module];
+		options["outDir"] += `/${module}`;
+		// options["target"] = Targets[0];
+	
+		if(!compile(files, options))
+			process.exit(1);
 	}
-	const options = {
-		"Classic": ts.ModuleResolutionKind.Classic,
-		"Node": ts.ModuleResolutionKind.NodeJs
-	};
-
-	compilerOptions["moduleResolution"] = options[compilerOptions["moduleResolution"]];
-
-	compile(files, compilerOptions);
 });
+
+
