@@ -20,7 +20,7 @@
 		"build": "node ./util/CompileProject.js",
 		"buildOld": "tsc -p tsconfig.json",
 		"watch": "tsc -w -p tsconfig.json",
-		"postinstall": "node ./util/PostInstal.js",
+		"postinstall": "node ./util/PostInstall.js",
 		"prepublish": "pnpm run build"
 	},
 	"repository": {
@@ -43,7 +43,7 @@
 		"eslint": "^7.32.0",
 		"jest": "^27.1.0",
 		"ts-jest": "^27.0.5",
-		"typescript": "^4.4.2"
+		"typescript": "4.5.2"
 	},
 	"optionalDependencies": {
 		"timer": "github:CEbbinghaus/timer"
