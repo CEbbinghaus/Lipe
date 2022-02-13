@@ -3,7 +3,7 @@ import * as fs from "fs";
 import glob from "glob";
 import { fileURLToPath } from "url";
 
-const IsMainModule = (process.argv[1] === fileURLToPath(import.meta.url));
+const IsMainModule = process.argv[1] === fileURLToPath(import.meta.url);
 
 const ModuleTable = {
 	[0]: "None",
@@ -63,20 +63,22 @@ function RunCompiler(fileNames, options) {
 		}
 	});
 
-	if(emitResult.emitSkipped)
+	if (emitResult.emitSkipped)
 		console.log(`Compile Failed for Module ${ModuleTable[options.module]}`);
 	else
-		console.log(`Compile Finished for Module ${ModuleTable[options.module]}`);
-	
+		console.log(
+			`Compile Finished for Module ${ModuleTable[options.module]}`
+		);
+
 	return !emitResult.emitSkipped;
 }
 
 /**
  * Compiles the Project with all variations
  * @returns {boolean} Success
- * @export 
+ * @export
  */
-export function Compile(){
+export function Compile() {
 	const rawData = fs.readFileSync("./tsconfig.json").toString();
 	const cleanData = rawData.replace(
 		/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
@@ -126,15 +128,13 @@ export function Compile(){
 
 			const CompilerFailed = !RunCompiler(files, options);
 
-			if (CompilerFailed)
-				if (IsMainModule)
-					process.exit(1);
-				else
-					return false;
+			if (CompilerFailed) {
+				if (IsMainModule) process.exit(1);
+				else return false;
+			}
 		}
 		return true;
 	});
-
 }
 
 if (IsMainModule) {

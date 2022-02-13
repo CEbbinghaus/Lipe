@@ -3,10 +3,9 @@
 	"version": "0.1.2",
 	"description": "A Logging library with full customizability",
 	"typings": "lib/types",
-	"type": "module",
 	"exports": {
 		".": {
-			"require": "./lib/CommonJS/index.js",
+			"default": "./lib/CommonJS/index.js",
 			"import": "./lib/ES6/index.js"
 		},
 		"./defaults": {
@@ -17,10 +16,10 @@
 	"scripts": {
 		"test": "jest",
 		"test:script": "node --es-module-specifier-resolution=node ./tests/test.js",
-		"build": "node ./util/CompileProject.js",
+		"build": "node ./util/CompileProject.mjs",
 		"buildOld": "tsc -p tsconfig.json",
 		"watch": "tsc -w -p tsconfig.json",
-		"postinstall": "node ./util/PostInstall.js",
+		"postinstall": "node ./util/PostInstall.mjs",
 		"prepublish": "pnpm run build"
 	},
 	"repository": {

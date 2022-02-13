@@ -4,7 +4,7 @@ import { exec, spawn } from "child_process";
 import { existsSync, fstat, renameSync} from "fs";
 import * as path from "path";
 import { cwd } from "process";
-import { Compile } from "./CompileProject.js"
+import { Compile } from "./CompileProject.mjs"
 
 const dependencies = ["typescript"]
 
