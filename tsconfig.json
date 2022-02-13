@@ -1,14 +1,8 @@
 {
 	"modules": ["ES6", "CommonJS"],
-
-	
-	"include": ["src"],
-	"exclude": ["node_modules"],
 	"compilerOptions": {
 		"newLine": "lf",
 		"target": "ES6",
-		// "module": "ES6",
-		// "module": "node12",
 		"moduleResolution": "node",
 		"allowJs": true,
 		"esModuleInterop": true,

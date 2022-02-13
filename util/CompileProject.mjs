@@ -110,7 +110,7 @@ export function Compile() {
 
 	console.log(`Compiling Lipe with Modules: {${Modules}}`); // and Targets: {${Targets}}
 
-	glob("src/**.ts", (err, files) => {
+	glob("src/**/*.ts", (err, files) => {
 		for (let module of Modules) {
 			if (err) {
 				console.error(err);

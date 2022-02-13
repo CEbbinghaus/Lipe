@@ -1,4 +1,3 @@
-
 export function InternalSplat(format: string, values: Record<string, unknown>): string{
 	let result = format;
 
