@@ -2,7 +2,8 @@ name: "Merge Checklist"
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - "master"
 
 jobs:
   setup:
