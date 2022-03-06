@@ -3,9 +3,14 @@
 import { exec, spawn } from "child_process";
 import { existsSync, fstat, renameSync } from "fs";
 import * as path from "path";
-import { cwd } from "process";
+import { cwd, exit } from "process";
 import { Compile } from "./CompileProject.mjs";
 import { env } from "process";
+
+if (!existsSync("src")) {
+	console.log("Skipped...");
+	process.exit(0);
+}
 
 const dependencies = ["typescript"];
 
@@ -38,17 +43,20 @@ async function VerifyDependencies() {
 
 let shouldCompile = true;
 
+if (shouldCompile && isGit) {
+	console.log("git repository detected. Skipping Compilation");
+	shouldCompile = false;
+}
+
 if (shouldCompile && existsSync(dir)) {
 	console.log("lib dir exists. Skipping Compilation");
 	shouldCompile = false;
 }
 
 if (shouldCompile && !(env.lipe_postinstall != false)) {
-	console.log("environment variable lipe_postinstall is false. Skipping Compilation");
-	shouldCompile = false;
-}
-if (shouldCompile && isGit) {
-	console.log("git repository detected. Skipping Compilation");
+	console.log(
+		"environment variable lipe_postinstall is false. Skipping Compilation"
+	);
 	shouldCompile = false;
 }
 

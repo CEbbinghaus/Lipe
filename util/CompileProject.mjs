@@ -3,6 +3,11 @@ import * as fs from "fs";
 import glob from "glob";
 import { fileURLToPath } from "url";
 
+if (!fs.existsSync("src")) {
+	console.log("Skipped...");
+	process.exit(0);
+}
+
 const IsMainModule = process.argv[1] === fileURLToPath(import.meta.url);
 
 const ModuleTable = {
@@ -33,7 +38,6 @@ const ModuleTable = {
  * @returns {Promise<boolean>} Success
  */
 async function RunCompiler(fileNames, options) {
-
 	const host = ts.createCompilerHost(options);
 	let program = ts.createProgram(fileNames, options, host);
 	let emitResult = program.emit();
@@ -110,7 +114,7 @@ export function Compile() {
 	// 	throw "Must Define at least One Target to Compile to";
 
 	console.log(`Compiling Lipe with Modules: {${Modules}}`); // and Targets: {${Targets}}
-	
+
 	return new Promise((res, rej) => {
 		glob("src/**/*.ts", (err, files) => {
 			for (let module of Modules) {

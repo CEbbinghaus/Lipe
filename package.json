@@ -34,7 +34,7 @@
 		"lightweight",
 		"expandable"
 	],
-	"author": "CEbbinghaus",
+	"author": "CEbbinghaus <contact@cebbinghaus.com>",
 	"license": "ISC",
 	"devDependencies": {
 		"@types/jest": "^27.4.1",
