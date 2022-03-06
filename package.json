@@ -1,6 +1,6 @@
 {
 	"name": "lipe",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"description": "A Logging library with full customizability",
 	"typings": "lib/types",
 	"packageManager": "pnpm@6.32.2",
@@ -34,7 +34,7 @@
 		"lightweight",
 		"expandable"
 	],
-	"author": "CEbbinghaus",
+	"author": "CEbbinghaus <contact@cebbinghaus.com>",
 	"license": "ISC",
 	"devDependencies": {
 		"@types/jest": "^27.4.1",

@@ -3,6 +3,11 @@ import * as fs from "fs";
 import glob from "glob";
 import { fileURLToPath } from "url";
 
+if (!fs.existsSync("src")) {
+	console.log("Skipped...");
+	process.exit(0);
+}
+
 const IsMainModule = process.argv[1] === fileURLToPath(import.meta.url);
 
 const ModuleTable = {
@@ -30,9 +35,9 @@ const ModuleTable = {
  * @param {string[]} fileNames
  * @param {ts.CompilerOptions} options
  * @param {ts.CompilerOptions} options
- * @returns {boolean} Success
+ * @returns {Promise<boolean>} Success
  */
-function RunCompiler(fileNames, options) {
+async function RunCompiler(fileNames, options) {
 	const host = ts.createCompilerHost(options);
 	let program = ts.createProgram(fileNames, options, host);
 	let emitResult = program.emit();
@@ -75,7 +80,7 @@ function RunCompiler(fileNames, options) {
 
 /**
  * Compiles the Project with all variations
- * @returns {boolean} Success
+ * @returns {Promise<boolean>} Success
  * @export
  */
 export function Compile() {
@@ -110,30 +115,32 @@ export function Compile() {
 
 	console.log(`Compiling Lipe with Modules: {${Modules}}`); // and Targets: {${Targets}}
 
-	glob("src/**/*.ts", (err, files) => {
-		for (let module of Modules) {
-			if (err) {
-				console.error(err);
-				return;
+	return new Promise((res, rej) => {
+		glob("src/**/*.ts", (err, files) => {
+			for (let module of Modules) {
+				if (err) {
+					console.error(err);
+					return;
+				}
+
+				const options = Object.assign({}, compilerOptions);
+
+				if (ModuleTable[module] === undefined)
+					throw `Module ${module} is missing its mapping`;
+
+				options["module"] = ModuleTable[module];
+				options["outDir"] += `/${module}`;
+				// options["target"] = Targets[0];
+
+				const CompilerFailed = !RunCompiler(files, options);
+
+				if (CompilerFailed) {
+					if (IsMainModule) process.exit(1);
+					else return res(false);
+				}
 			}
-
-			const options = Object.assign({}, compilerOptions);
-
-			if (ModuleTable[module] === undefined)
-				throw `Module ${module} is missing its mapping`;
-
-			options["module"] = ModuleTable[module];
-			options["outDir"] += `/${module}`;
-			// options["target"] = Targets[0];
-
-			const CompilerFailed = !RunCompiler(files, options);
-
-			if (CompilerFailed) {
-				if (IsMainModule) process.exit(1);
-				else return false;
-			}
-		}
-		return true;
+			return res(true);
+		});
 	});
 }
 

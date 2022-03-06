@@ -1,4 +1,6 @@
 name: "Publish NPM Package"
+env:
+  lipe_postinstall: false
 on:
   push:
     branches:
@@ -27,12 +29,15 @@ jobs:
 
   publish:
     name: ⬆️ Publish 📦
+    needs: pushTag
     runs-on: ubuntu-latest
     steps:
       - uses: "actions/checkout@v2"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
