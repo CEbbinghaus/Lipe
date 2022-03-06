@@ -5,6 +5,7 @@ import { existsSync, fstat, renameSync} from "fs";
 import * as path from "path";
 import { cwd } from "process";
 import { Compile } from "./CompileProject.mjs"
+import { env } from "process"
 
 const dependencies = ["typescript"]
 
@@ -35,25 +36,14 @@ async function VerifyDependencies()
 			}
 		}
 		res();
-		// const install = exec(
-		// 	"npm i --no-package-lock --no-save typescript@4.5.2",
-		// 	(err, stdout, stderr) => {
-
-		// 		if (err) rej(stderr);
-
-		// 		res(stdout);
-		// 	}
-		// );
-
-		// install.stdout.pipe(process.stdout);
-		// install.stderr.pipe(process.stderr);
 	})
 }
 
 // Runs initial Build script if the lib folder doesn't exist (in case it was included as a git repository)
-if(!existsSync(dir)){
-
-	console.log("Library directory is missing. Must be installing from Git. Building project from source");
+if (!existsSync(dir) && (env.lipe_postinstall != false)) {
+	console.log(
+		"Library directory is missing. Must be installing from Git. Building project from source"
+	);
 
 	await VerifyDependencies().catch((error) => {
 		throw error;
@@ -63,7 +53,6 @@ if(!existsSync(dir)){
 
 	if (!Success) console.error("Failed to Build Source");
 	else console.log("Built Logger from Source");
-
 }
 
 console.log("Postinstall Script finished");

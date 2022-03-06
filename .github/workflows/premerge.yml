@@ -1,4 +1,6 @@
-name: "Merge Checklist"
+name: "PR Checklist"
+env:
+  lipe_postinstall: false
 
 on:
   pull_request:

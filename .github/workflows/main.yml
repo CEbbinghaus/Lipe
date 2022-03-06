@@ -1,4 +1,6 @@
 name: "Publish NPM Package"
+env:
+  lipe_postinstall: false
 on:
   push:
     branches:
