@@ -34,20 +34,17 @@ jobs:
     steps:
       - uses: "actions/checkout@v2"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: latest
-
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 17.3
           cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
 
-      - name: Install Dependencies
-        run: pnpm install --prefer-offline --frozen-lockfile
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+          run_install: true
 
       - name: Build Project
         run: pnpm run build
