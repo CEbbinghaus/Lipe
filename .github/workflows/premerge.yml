@@ -48,6 +48,7 @@ jobs:
           eslint: true
           eslint_dir: "src"
           eslint_extensions: ts
+  
   build:
     needs: lint
     if: "true"
@@ -72,6 +73,7 @@ jobs:
 
       - name: Build Project
         run: pnpm run build
+  
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -94,7 +96,10 @@ jobs:
         run: pnpm install --prefer-offline --frozen-lockfile
 
       - name: Run Unit Tests
-        run: pnpm run test
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          test-script: pnpm test
+
   version:
     runs-on: ubuntu-latest
     name: 🔢 Verify Version Number ➕
