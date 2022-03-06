@@ -28,17 +28,19 @@ jobs:
     steps:
       - uses: "actions/checkout@v2"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 17.3
           cache: 'pnpm'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: latest
-          run_install: true
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
 
       - name: Lint Project
         uses: wearerequired/lint-action@v1
@@ -55,17 +57,19 @@ jobs:
     steps:
       - uses: "actions/checkout@v2"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 17.3
           cache: 'pnpm'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: latest
-          run_install: true
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
 
       - name: Build Project
         run: pnpm run build
@@ -77,17 +81,16 @@ jobs:
     steps:
       - uses: "actions/checkout@v2"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 17.3
           cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: latest
-          run_install: true
 
       - name: Run Unit Tests
         uses: ArtiomTr/jest-coverage-report-action@v2
