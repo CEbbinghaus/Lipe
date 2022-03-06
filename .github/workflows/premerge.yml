@@ -1,0 +1,117 @@
+name: "Merge Checklist"
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    name: 🔧 Setup 📐
+    steps:
+        - uses: "actions/checkout@v2"
+
+        - name: Hash source Folder
+          env:
+            hash: ${{ hashFiles('src/**/*') }}
+          run: |
+            echo "Project Hash is: $hash"
+
+  lint:
+    needs: setup
+    if: "true"
+    runs-on: ubuntu-latest
+    name: 🔎 Linting 🧹
+    steps:
+      - uses: "actions/checkout@v2"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 17.3
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
+
+      - name: Lint Project
+        uses: wearerequired/lint-action@v1
+        with:
+          eslint: true
+          eslint_dir: "src"
+          eslint_extensions: ts
+  build:
+    needs: lint
+    if: "true"
+    runs-on: ubuntu-latest
+    name: 🔨 Building 📦
+    steps:
+      - uses: "actions/checkout@v2"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 17.3
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
+
+      - name: Build Project
+        run: pnpm run build
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    name: ⚗️ Testing 👷🏼
+    steps:
+      - uses: "actions/checkout@v2"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 17.3
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
+
+      - name: Run Unit Tests
+        run: pnpm run test
+  version:
+    runs-on: ubuntu-latest
+    name: 🔢 Verify Version Number ➕
+    steps:
+      - uses: "actions/checkout@v2"
+
+      - name: Retrieve latest tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: latest-tag
+
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
+
+      - name: Compare Tags
+        uses: madhead/semver-utils@latest
+        id: version
+        with:
+          # A version to work with
+          version: ${{ steps.package-version.outputs.current-version }}
+
+          # A version to compare against
+          compare-to: ${{ steps.latest-tag.outputs.tag }}
+
+      - name: Fail if not Greater
+        if: "${{ steps.version.outputs.comparison-result != '>' }}"
+        run: exit 1
+
+
