@@ -1,0 +1,53 @@
+name: "Publish NPM Package"
+on:
+  push:
+    branches:
+      - "master"
+jobs:
+  pushTag:
+    name: ⬆️ Push Tag 🏷️
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
+
+      - name: Push new tag
+        uses: actions-ecosystem/action-push-tag@v1
+        with:
+          tag: ${{ steps.package-version.outputs.current-version }}
+          message: '#${{ github.event.pull_request.number }} v${{ steps.package-version.outputs.current-version }} ${{ github.event.pull_request.title }}'
+
+  publish:
+    name: ⬆️ Publish 📦
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "actions/checkout@v2"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 17.3
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
+
+      - name: Build Project
+        run: pnpm run build
+
+      - run: pnpm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+
