@@ -27,6 +27,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
@@ -53,6 +55,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
@@ -74,6 +78,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
@@ -99,6 +105,8 @@ jobs:
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@master
+        with:
+          version: latest
 
       - name: Compare Tags
         uses: madhead/semver-utils@latest
