@@ -75,7 +75,7 @@ jobs:
         run: pnpm run build
   
   test:
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     name: ⚗️ Testing 👷🏼
     steps:
@@ -92,13 +92,11 @@ jobs:
           node-version: 17.3
           cache: 'pnpm'
 
-      - name: Install Dependencies
-        run: pnpm install --prefer-offline --frozen-lockfile
-
       - name: Run Unit Tests
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           test-script: pnpm test
+          package-manager: pnpm
 
   version:
     runs-on: ubuntu-latest
