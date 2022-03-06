@@ -1,6 +1,6 @@
 {
 	"name": "lipe",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "A Logging library with full customizability",
 	"typings": "lib/types",
 	"packageManager": "pnpm@6.32.2",
