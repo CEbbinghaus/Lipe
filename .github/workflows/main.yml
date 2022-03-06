@@ -23,7 +23,7 @@ jobs:
         uses: actions-ecosystem/action-push-tag@v1
         with:
           tag: ${{ steps.package-version.outputs.current-version }}
-          message: 'v${{ steps.package-version.outputs.current-version }} PR #${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}'
+          message: '#${{ github.event.pull_request.number }} v${{ steps.package-version.outputs.current-version }} ${{ github.event.pull_request.title }}'
 
   publish:
     name: ⬆️ Publish 📦
