@@ -37,6 +37,20 @@ describe("Constructing Logger", () => {
 });
 
 describe("Transform Messages", () => {
+	test("Constructing Empty pipe throws error", () => {
+
+		let run = () => logger.pipe.Pipe();
+		expect(run).toThrow(Error);
+	});
+
+	// This Error is difficult to test since it gets caught and logged. Might require propagating the error back up
+	// test("Returning a non string from a pipe throws a TypeError", () => {
+	// 	// We have to trick the compiler to produce the error
+	// 	logger.pipe.Pipe((msg) => 23 as any as string);
+	// 	let run = () => logger.Log("Foo");
+	// 	expect(run).toThrow(TypeError);
+	// });
+
 	test("Can Transform the Message body", () => {
 		// Add Hello Transform to Pipe
 		logger.pipe.Pipe((msg) => "Hello " + msg + "!").Pipe(output);

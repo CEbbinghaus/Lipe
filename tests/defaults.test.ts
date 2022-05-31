@@ -1,5 +1,15 @@
+let mockFiles = {}
+
+jest.mock("fs", () => Object.assign({}, {
+	existsSync: (path) => false,
+	appendFileSync: (path, content) => mockFiles[path] += content,
+	writeFileSync: (path, content) => mockFiles[path] = content
+}));
+
 import Logger, { IFormatter, LoggerPipe, LogLevel } from "../src/index";
-import { Console, Splat } from "../src/defaults";
+import { Console, Splat, WriteToFile } from "../src/defaults";
+import * as fs from "fs";
+import { join } from "path";
 
 // Variable Definitions
 let message: string = null;
@@ -49,6 +59,21 @@ describe("Default Outputs", () => {
 		logger.Log(message);
 
 		expect(consoleSpy).toHaveBeenCalledWith(message);
+	});
+	
+	test("File output writes to file", () => {
+
+		let fileName = "./test.log";
+		let absoluteFileName = join(process.cwd(), fileName);
+		logger.pipe.Pipe(WriteToFile(fileName));
+
+		expect(mockFiles[absoluteFileName]).toEqual("");
+		// For some reason this test is failing. Will have to investigate further
+		// expect(mockFiles).toHaveProperty(absoluteFileName, "");
+
+		logger.Log(message);
+
+		expect(mockFiles[absoluteFileName]).toEqual(message + "\n");
 	});
 });
 

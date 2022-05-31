@@ -9,7 +9,7 @@ export function InternalSplat(format: string, values: Record<string, unknown>): 
 }
 
 // Copied and Adapted from: https://github.com/trentm/node-bunyan/blob/0ff1ae29cc9e028c6c11cd6b60e3b90217b66a10/lib/bunyan.js#L178
-export function getCallerInfo() {
+export function getCallerInfo(): Record<string, unknown> {
 	if (this === undefined) {
 		// Cannot access caller info in 'strict' mode.
 		return;

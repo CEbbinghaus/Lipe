@@ -1,4 +1,4 @@
-import { IFormatter, LogLevel } from "..";
+import { IFormatter, LogLevel } from "../index.js";
 import { existsSync, appendFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
@@ -12,7 +12,8 @@ export const WriteToFile: (
 	}
 
 	return (message, { logLevel }) => {
-		if (options?.minLevel && logLevel < options.minLevel) return;
+		if (options?.minLevel && logLevel < options.minLevel)
+			return;
 
 		appendFileSync(filePath, message + "\n");
 	};
