@@ -12,7 +12,8 @@ export const WriteToFile: (
 	}
 
 	return (message, { logLevel }) => {
-		if (options?.minLevel && logLevel < options.minLevel) return;
+		if (options?.minLevel && logLevel < options.minLevel)
+			return;
 
 		appendFileSync(filePath, message + "\n");
 	};
