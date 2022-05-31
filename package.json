@@ -2,7 +2,7 @@
 	"name": "lipe",
 	"version": "0.2.0",
 	"description": "A Logging library with full customizability",
-	"typings": "lib/types",
+	"typings": "lib/Types",
 	"packageManager": "pnpm@6.32.2",
 	"exports": {
 		".": {
@@ -18,7 +18,6 @@
 		"test": "jest",
 		"test:script": "node --es-module-specifier-resolution=node ./tests/test.js",
 		"build": "node ./util/CompileProject.mjs",
-		"buildOld": "tsc -p tsconfig.json",
 		"watch": "tsc -w -p tsconfig.json",
 		"postinstall": "node ./util/PostInstall.mjs",
 		"prepublish": "pnpm run build"

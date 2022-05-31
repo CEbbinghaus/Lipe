@@ -7,7 +7,7 @@
 		"allowJs": true,
 		"esModuleInterop": true,
 		"declaration": true,
-		"declarationDir": "lib/types",
+		"declarationDir": "lib/Types",
 		"sourceMap": true,
 		"sourceRoot": "/src",
 		"outDir": "lib"

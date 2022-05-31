@@ -138,6 +138,25 @@ export function Compile() {
 					if (IsMainModule) process.exit(1);
 					else return res(false);
 				}
+
+				let pack = {
+					type: null
+				};
+
+				switch(module)
+				{
+					case "CommonJS":
+						pack.type = "commonjs"
+						break;
+					case "ES6":
+						pack.type = "module"
+					break;
+					default: 
+						console.warn("No package.json type for Non Standard Module " + module);
+				}
+
+				fs.writeFileSync(`./lib/${module}/package.json`, JSON.stringify(pack));
+				
 			}
 			return res(true);
 		});
