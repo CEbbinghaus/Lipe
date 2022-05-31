@@ -22,10 +22,18 @@ jobs:
         uses: martinbeentjes/npm-get-version-action@master
 
       - name: Push new tag
-        uses: actions-ecosystem/action-push-tag@v1
-        with:
-          tag: ${{ steps.package-version.outputs.current-version }}
-          message: '#${{ github.event.pull_request.number }} v${{ steps.package-version.outputs.current-version }} ${{ github.event.pull_request.title }}'
+        run: |
+          tag=${{ steps.package-version.outputs.current-version }}
+          message='#${{ github.event.pull_request.number }} v${{ steps.package-version.outputs.current-version }} ${{ github.event.pull_request.title }}'
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git tag -a "${tag}" -m "${message}"
+          git push origin "${tag}"
+      # - name: Push new tag
+      #   uses: actions-ecosystem/action-push-tag@v1
+      #   with:
+      #     tag: ${{ steps.package-version.outputs.current-version }}
+      #     message: '#${{ github.event.pull_request.number }} v${{ steps.package-version.outputs.current-version }} ${{ github.event.pull_request.title }}'
 
   publish:
     name: ⬆️ Publish 📦
