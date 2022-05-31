@@ -1,5 +1,5 @@
 import chalk, { ChalkFunction } from "chalk";
-import { IFormatter, LogLevel } from "../index";
+import { IFormatter, LogLevel } from "../index.js";
 
 const LogColors: { [key: number]: ChalkFunction } = {
 	[LogLevel.Debug]: chalk.blueBright.bold,

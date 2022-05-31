@@ -1,4 +1,4 @@
-import { InternalSplat } from "./utils/util";
+import { InternalSplat } from "./utils/util.js";
 
 // export * as Defaults from "./defaults";
 

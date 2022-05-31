@@ -1,4 +1,4 @@
-import { IFormatter } from "..";
+import { IFormatter } from "../index.js";
 import moment from "moment";
 
 export function Timestamped(format: string): IFormatter;

@@ -1,4 +1,4 @@
-import { IFormatter, LogLevel } from "..";
+import { IFormatter, LogLevel } from "../index.js";
 
 export const Console: () => IFormatter = () => (message, { logLevel }) => {
 	// Bitwise checks to filter for Critical and Error messages

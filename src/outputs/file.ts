@@ -1,4 +1,4 @@
-import { IFormatter, LogLevel } from "..";
+import { IFormatter, LogLevel } from "../index.js";
 import { existsSync, appendFileSync, writeFileSync } from "fs";
 import { join } from "path";
 

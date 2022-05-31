@@ -1,5 +1,5 @@
 import { IFormatter } from "..";
-import { InternalSplat } from "../utils/util";
+import { InternalSplat } from "../utils/util.js";
 
 export const Splat: (format: string) => IFormatter = (
 	format: string = "{Message}"
