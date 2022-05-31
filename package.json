@@ -6,11 +6,11 @@
 	"packageManager": "pnpm@6.32.2",
 	"exports": {
 		".": {
-			"default": "./lib/CommonJS/index.js",
+			"require": "./lib/CommonJS/index.js",
 			"import": "./lib/ES6/index.js"
 		},
 		"./defaults": {
-			"default": "./lib/CommonJS/defaults.js",
+			"require": "./lib/CommonJS/defaults.js",
 			"import": "./lib/ES6/defaults.js"
 		}
 	},
