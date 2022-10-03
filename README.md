@@ -26,4 +26,4 @@ logger.Log("Hello World!");
 
 More documentation is being worked on.
 
-Copyright ©️ CEbbinghaus 2021
+Copyright ©️ CEbbinghaus 2022
