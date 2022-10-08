@@ -1,17 +1,15 @@
 export const SITE = {
-	title: "The Logger that Pipes",
-	description: "Your website description.",
+	title: "Lipe",
+	description: "A modern JS Logging framework built around pipes",
 	defaultLanguage: "en_US",
 };
 
 export const OPEN_GRAPH = {
 	image: {
-		src: "https://github.com/snowpackjs/astro/blob/main/assets/social/banner.jpg?raw=true",
-		alt:
-			"astro logo on a starry expanse of space," +
-			" with a purple saturn-like planet floating in the right foreground",
+		src: "",
+		alt: ""
 	},
-	// twitter: "astrodotbuild",
+	twitter: "",
 };
 
 export const KNOWN_LANGUAGES = {
@@ -19,10 +17,10 @@ export const KNOWN_LANGUAGES = {
 };
 
 // Uncomment this to add an "Edit this page" button to every page of documentation.
-export const GITHUB_EDIT_URL = `https://github.com/CEbbinghaus/Logger/blob/docs/`;
+export const GITHUB_EDIT_URL = `https://github.com/CEbbinghaus/Logger/blob/master/docs/`;
 
 // Uncomment this to add an "Join our Community" button to every page of documentation.
-// export const COMMUNITY_INVITE_URL = `https://astro.build/chat`;
+// export const COMMUNITY_INVITE_URL = ``;
 
 // Uncomment this to enable site search.
 // See "Algolia" section of the README for more information.
