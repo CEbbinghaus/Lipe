@@ -1,7 +1,10 @@
 {
 	"cSpell.words": [
 		"IIFE",
-		"Lipe"
+		"lipe",
+		"astro",
+		"pnpm",
+		"Sibz"
 	],
 	"eslint.validate": ["typescript", "typescriptreact"]
 	
