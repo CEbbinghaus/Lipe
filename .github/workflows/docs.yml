@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+    branches:
+      - "master"
+    paths:
+      - 'docs/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    defaults:
+      run:
+        working-directory: docs
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
+
+      - name: Build Project
+        run: pnpm build
+
+      - name: Publish
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          workingDirectory: 'docs'
+          apiToken: ${{ secrets.CLOUDFLARE_SECRET }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages publish dist --project-name=lipe --branch="${{ github.head_ref || github.ref_name }}" --commit-hash="${{ github.sha }}" | tee publish.log
+
+      - name: set DeploymentUrl as Output
+        id: deploy-url
+        run: echo "::set-output name=url::$(cat publish.log | sed -nr "s/✨\sDeployment\scomplete!.+\s(.+)/\1/p")"
+      
+      - name: Status check
+        uses: Sibz/github-status-action@v1.1.6
+        if: steps.deploy-url.outputs.url
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          context: Cloudflare Preview
+          state: success
+          target_url:  ${{ steps.deploy-url.outputs.url }}
