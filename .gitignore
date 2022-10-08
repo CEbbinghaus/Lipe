@@ -133,9 +133,11 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# macOS-specific files
+.DS_Store
+
 # Zettlr Generated Files
 .ztr-directory
 
 # Custom Ignores
 lib/*
-
