@@ -3,11 +3,11 @@ name: "Publish NPM Package"
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   publish:
     name: ⬆️ Publish 📦
-    needs: pushTag
     runs-on: ubuntu-latest
     steps:
       - uses: "actions/checkout@v2"
