@@ -1,11 +1,16 @@
 {
 	"cSpell.words": [
-		"IIFE",
-		"lipe",
 		"astro",
+		"Ebbinghaus",
+		"IIFE",
+		"linebreak",
+		"lipe",
+		"nocheck",
 		"pnpm",
-		"Sibz"
+		"reallylongstringwithlotsofcharactersandsome",
+		"Sibz",
+		"webcompat"
 	],
-	"eslint.validate": ["typescript", "typescriptreact"]
-	
+	"eslint.validate": ["typescript", "typescriptreact"],
+	"debug.javascript.unmapMissingSources": true,
 }

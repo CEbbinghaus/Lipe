@@ -10,6 +10,10 @@
 		"declarationDir": "lib/Types",
 		"sourceMap": true,
 		"sourceRoot": "/src",
-		"outDir": "lib"
-	}
+		"outDir": "lib",
+		"rootDir": "src"
+	},
+	"include": [
+		"src"
+	]
 }

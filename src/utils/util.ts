@@ -1,11 +1,7 @@
+import { Format } from "./Formatter";
+
 export function InternalSplat(format: string, values: Record<string, unknown>): string{
-	let result = format;
-
-	for(const key in values){
-		result = result.replace(`{${key}}`, values[key] as string);
-	}
-
-	return result;
+	return Format(format, values);
 }
 
 // Copied and Adapted from: https://github.com/trentm/node-bunyan/blob/0ff1ae29cc9e028c6c11cd6b60e3b90217b66a10/lib/bunyan.js#L178
