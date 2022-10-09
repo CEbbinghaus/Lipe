@@ -25,12 +25,13 @@ module.exports = {
 	coverageThreshold: {
 		global: {
 			branches: 70,
-			functions: 50,
+			functions: 60,
 			lines: 80,
 			statements: 80,
 		},
 	},
 
 	coverageDirectory: "coverage",
-	coverageProvider: "babel",
+	// coverageProvider: "babel",
+	coverageProvider: "v8"
 };

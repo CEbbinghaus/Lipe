@@ -8,6 +8,6 @@
 		"pnpm",
 		"Sibz"
 	],
-	"eslint.validate": ["typescript", "typescriptreact"]
-	
+	"eslint.validate": ["typescript", "typescriptreact"],
+	"debug.javascript.unmapMissingSources": true,
 }

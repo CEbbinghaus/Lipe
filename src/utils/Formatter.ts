@@ -13,9 +13,11 @@ const DefaultFormatterOptions: FormatterOptions = {
 	RegenerateUnknownTokens: true
 };
 
-/// <summary>
-/// The Type that the token represents.
-/// </summary>
+/**
+ * The kind of token it represents. Replace tokens are surrounded by braces
+ * whereas string tokens just represent a piece of text
+ * @enum {number}
+ */
 enum TokenType
 {
 	ReplaceToken,
@@ -38,19 +40,20 @@ const EmptyToken: Token = {
 	modifier: null
 };
 
-/// <summary>
-/// Generates a Token from the '{', ':' and '}' positions including modifier and everything else
-/// </summary>
-/// <param name="message">The message to generate the tokens for</param>
-/// <param name="startIndex">start index of the substring</param>
-/// <param name="endIndex">end index of the substring</param>
-/// <param name="formatIndex">index of the format character</param>
-/// <returns>new Token</returns>
+/**
+ * enerates a Token from the '{', ':' and '}' positions including modifier and everything else
+ * 
+ * @param {string} message The message to generate the tokens for
+ * @param {number} startIndex start index of the substring
+ * @param {number} endIndex end index of the substring
+ * @param {number} formatIndex index of the format character
+ * @returns {Token} A new Token
+ */
 function GenerateToken(message: string, startIndex: number, endIndex: number, formatIndex: number): Token
 {
 	let body: string = null;
 	let format: string = null;
-	let modifier = '\0';
+	let modifier = null;
 
 	// Empty Brackets therefore empty token
 	if(endIndex - startIndex == 1)
@@ -58,32 +61,30 @@ function GenerateToken(message: string, startIndex: number, endIndex: number, fo
 		return EmptyToken;
 	}
 
-	// Need to account for the ending bracket. 
-	const totalLength = (endIndex - startIndex) + 1;
-
 	// Only if the format exists do we want to find it
 	if(formatIndex != -1)
 	{
-		const formatLength = endIndex - formatIndex;
 		// Shrink both sides by 1 to remove key tokens
-		format = message.slice(formatIndex + 1, formatLength - 1);
+		format = message.slice(formatIndex + 1, endIndex);
 		// Reduce length of the body to only the first half
 		endIndex = formatIndex;
 	}
 
-	const length = endIndex - startIndex;
 	// Shrink both sides by 1 to remove key tokens
-	body = message.slice(startIndex + 1, length - 1);
+	body = message.slice(startIndex + 1, endIndex);
 
 	switch(body[0])
 	{
 		case '@':
 			modifier = '@';
 			break;
+		case '!':
+			modifier = '!';
+			break;
 	}
 
 	// If the modifier has been determined we need to shorted the substring
-	if(modifier != '\0')
+	if(modifier != null)
 		body = body.slice(1);
 
 	return {
@@ -94,11 +95,13 @@ function GenerateToken(message: string, startIndex: number, endIndex: number, fo
 	};
 }
 
-/// <summary>
-/// Converts the string into tokens for later use
-/// </summary>
-/// <param name="message">The string that is being converted into tokens</param>
-/// <returns>The tokens that came from the message</returns>
+/**
+ * Converts the string into tokens for later use
+ * 
+ * @param {string} message he string that is being converted into tokens
+ * @param {FormatterOptions} options 
+ * @returns {Token[]} The tokens that form the message
+ */
 function Tokenize(message: string, options: FormatterOptions): Token[]
 {
 	// All the Tokens we found in this file
@@ -153,7 +156,7 @@ function Tokenize(message: string, options: FormatterOptions): Token[]
 			if(length > 0)
 				tokens.push({
 					Type: TokenType.StringToken,
-					body: message.slice(stringBegin, length)
+					body: message.slice(stringBegin, start)
 				});
 			
 			stringBegin = end + 1;
@@ -169,41 +172,45 @@ function Tokenize(message: string, options: FormatterOptions): Token[]
 
 		tokens.push({
 			Type: TokenType.StringToken,
-			body: message.slice(stringBegin, length)
+			body: message.slice(stringBegin, message.length)
 		});
 	}
 
 	return tokens;
 }
-/// <summary>
-/// Generate the original text which generated a Token.
-/// </summary>
-/// <param name="token">Token to generate the text for</param>
-/// <returns>String of the original text</returns>
+
+/**
+ * Generate the original text which generated a Token.
+ * 
+ * @param {Token} token Token to generate the text for
+ * @returns {Nullable<string>} tring of the original text
+ */
 function GenerateTokenText(token: Token): Nullable<string>
 {
 	if(token.Type == TokenType.StringToken)
 		return token.body;
-
+	
 	let result: string = "{";
-
-	if(token.modifier != '\0')
+	
+	if(token.modifier != null)
 		result += token.modifier;
-
-	result += token.body;
+		
+	result += token.body ?? "";
 
 	if(token.format != null)
 		result += ":" + token.format;
 
 	return result + "}";
 }
-/// <summary>
-/// Combines all tokens in order resolving each one to its proper value
-/// </summary>
-/// <param name="tokens">The tokens to Reassemble</param>
-/// <param name="values">A string object dictionary of values to use for the interpolation</param>
-/// <param name="options">Any options to use for the Formatter</param>
-/// <returns>a String reassembled from the token Array</returns>
+
+/**
+ * Combines all tokens in order resolving each one to its proper value
+ * 
+ * @param {Token[]} tokens The tokens to Reassemble
+ * @param {Record<string, unknown>} values A object to use for the interpolation
+ * @param {FormatterOptions} options  Any options to use for the Formatter
+ * @returns {string} A String reassembled from the token Array
+ */
 function ReassembleTokens(tokens: Token[], values: Record<string, unknown>, options: FormatterOptions): string {
 	
 	let formatted: string = "";
@@ -217,43 +224,30 @@ function ReassembleTokens(tokens: Token[], values: Record<string, unknown>, opti
 
 		if(values == null)
 		{
+			console.log(options.RegenerateUnknownTokens)
 			if(options.RegenerateUnknownTokens)
 				formatted += GenerateTokenText(token);
 			continue;
 		}
 
 		let value: unknown = null;
-		let failedToFind: boolean = false;
 
 		const body = token.body ?? "";
 
-		if(body.indexOf(".") != -1)
+		// Possibly not the best/most efficient way to retrieve nested properties from anonymous objects. Will need to try
+		const propArr = body.split(".");
+		
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		value = values[propArr[0]];
+
+		for(let i = 1; (value !== undefined && value !== null) && i < propArr.length; ++i)
 		{
-			// Possibly not the best/most efficient way to retrieve nested properties from anonymous objects. Will need to try
-			const propArr = body.split(".");
-			
-			// eslint-disable-next-line @typescript-eslint/ban-types
-			let value: unknown = values[propArr[0]];
-
-			for(let i = 0; (value !== undefined && value !== null) && i < propArr.length; ++i)
-			{
-				value = value[propArr[i]];
-			}
-
-			if(value == undefined)
-				failedToFind = true;
-
-		}else{
-			if(!(value = values[body]))
-				failedToFind = true;
+			value = value[propArr[i]];
 		}
 
 		if(value == undefined)
 		{
-			if(failedToFind)
-				formatted += options.RegenerateUnknownTokens ? GenerateTokenText(token) : "";
-			else
-				formatted += "Null";
+			formatted += options.RegenerateUnknownTokens ? GenerateTokenText(token) : "";
 			continue;
 		}
 		
@@ -262,6 +256,13 @@ function ReassembleTokens(tokens: Token[], values: Record<string, unknown>, opti
 	return formatted;
 }
 
+/**
+ * Stringifies a value according to the token it came from
+ * 
+ * @param {Token} token The token that evaluated to this value
+ * @param {unknown} value The value evaluated out of the tokens context
+ * @returns {Nullable<string>} A string representation of the value
+ */
 function Stringify(token: Token, value: unknown): Nullable<string> {
 	if(typeof(value) == 'string')
 		return value as string;
@@ -274,37 +275,45 @@ function Stringify(token: Token, value: unknown): Nullable<string> {
 			result = JSON.stringify(value);
 			break;
 		case '!':
-			result = value?.toString() ?? "Null";
+			result = value?.toString() ?? "null";
 			break;
 		default:
 			{
 				// We have to take into account the format of the data
-				if(token.format != null)
-				{
-					// TODO: Write some super complicated logic to handle the data formatting or use String.Format or something akin
-				}
+				// if(token.format != null)
+				// {
+				// TODO: Write some super complicated logic to handle the data formatting or use String.Format or something akin
+				// }
 
 				// We want to list all elements in an array 
-				if(Array.isArray(value) && value.length > 0)
+				if(Array.isArray(value))
 				{
 					const output = [];
 
 					for(let i = 0; i < value.length; ++i)
 					{
-
-						output.push(Stringify(token, value[i]) ?? "Null");
+						output.push(Stringify(token, value[i]) ?? "null");
 					}
 
 					return `[${output.join(", ")}]`;
 				}
 
-				result = value.toString() ?? "";
+				result = value?.toString() ?? "null";
 			}
 			break;
 	}
 	return result;
 }
 
+/**
+ * Formats a string replacing all braced tokens with corresponding values out of the object
+ * 
+ * @export
+ * @param {string} message The message that contains the format and any other text
+ * @param {Record<string, unknown>} values A object containing all values that should be interpolated
+ * @param {FormatterOptions} [options] Any options for the formatter on how it should function
+ * @returns {string} The formatted string with all tokens replaced with values
+ */
 export function Format(message: string, values: Record<string, unknown>, options?: FormatterOptions): string
 {
 	// Exit early if there is nothing to format
@@ -315,6 +324,8 @@ export function Format(message: string, values: Record<string, unknown>, options
 		options = DefaultFormatterOptions;
 
 	const tokens = Tokenize(message, options);
+
+	console.log(tokens);
 
 	return ReassembleTokens(tokens, values, options);
 }

@@ -45,7 +45,6 @@ describe("Default Transforms", () => {
 			expect.objectContaining({ logLevel: LogLevel.Log })
 		);
 	});
-
 });
 
 
