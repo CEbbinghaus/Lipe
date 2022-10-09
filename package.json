@@ -1,9 +1,10 @@
 {
 	"name": "lipe",
 	"version": "0.2.1",
-	"description": "A Logging library with full customizability",
+	"description": "A Logging library utilizing pipes",
 	"typings": "lib/Types",
 	"packageManager": "pnpm@6.32.2",
+	"homepage": "https://lipejs.com",
 	"exports": {
 		".": {
 			"require": "./lib/CommonJS/index.js",
@@ -24,7 +25,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cebbinghaus/Logger"
+		"url": "https://github.com/CEbbinghaus/Logger"
 	},
 	"keywords": [
 		"logging",

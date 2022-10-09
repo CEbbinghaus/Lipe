@@ -11,8 +11,8 @@ if (!fs.existsSync("src")) {
 const IsMainModule = process.argv[1] === fileURLToPath(import.meta.url);
 
 const ModuleTable = {
-	[0]: "None",
 	None: 0,
+	[0]: "None",
 	CommonJS: 1,
 	[1]: "CommonJS",
 	AMD: 2,
