@@ -1,11 +1,19 @@
-import Logger, { LoggerPipe } from "logger";
-import {
+// import Logger, { LoggerPipe } from "../lib/ES6/index";
+// import {
+// 	PrefixWithColor,
+// 	Console,
+// 	Timestamped,
+// 	WriteToFile,
+// 	Splat,
+// } from "../lib/ES6/defaults";
+const {default: Logger, LoggerPipe, LogLevel} = require("../lib/CommonJS/index");
+const {
 	PrefixWithColor,
 	Console,
 	Timestamped,
 	WriteToFile,
 	Splat,
-} from "logger/defaults";
+} = require("../lib/CommonJS/defaults");
 
 const noSecret = (message, {args}) => {
 	if (args?.isSecret)

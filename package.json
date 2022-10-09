@@ -17,9 +17,9 @@
 	},
 	"scripts": {
 		"test": "jest",
-		"test:script": "node --es-module-specifier-resolution=node ./tests/test.js",
+		"test:script": "node ./tests/test.js",
+		"clean": "rimraf lib coverage",
 		"build": "node ./util/CompileProject.mjs",
-		"watch": "tsc -w -p tsconfig.json",
 		"postinstall": "node ./util/PostInstall.mjs",
 		"prepublish": "pnpm run build"
 	},
@@ -46,7 +46,8 @@
 		"jest-ts-webcompat-resolver": "^1.0.0",
 		"source-map": "^0.8.0-beta.0",
 		"ts-jest": "^28.0.0",
-		"typescript": "4.5.2"
+		"typescript": "4.5.2",
+		"rimraf": "^3.0.2"
 	},
 	"optionalDependencies": {
 		"timer": "github:CEbbinghaus/timer"
@@ -56,4 +57,5 @@
 		"glob": "^7.2.0",
 		"moment": "^2.29.1"
 	}
+
 }

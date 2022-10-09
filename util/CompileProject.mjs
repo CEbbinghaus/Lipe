@@ -89,6 +89,7 @@ export function Compile() {
 		/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
 		(m, g) => (g ? "" : m)
 	);
+	
 	/**
 	 * @type {../tsconfig.json}
 	 */
