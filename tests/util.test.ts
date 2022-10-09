@@ -26,7 +26,7 @@ describe("Format", () => {
 		expect(Format(value, null)).toEqual(value);
 	})
 
-	test("Formatter dosn't regenerate tokens", () => {
+	test("Formatter doesn't regenerate tokens", () => {
 		let value = "{@token1} {token.two}	{token.three:format}";
 		expect(Format(value, null, {RegenerateUnknownTokens: false})).toEqual(" 	");
 	})

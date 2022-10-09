@@ -41,7 +41,7 @@ const EmptyToken: Token = {
 };
 
 /**
- * enerates a Token from the '{', ':' and '}' positions including modifier and everything else
+ * Generates a Token from the '{', ':' and '}' positions including modifier and everything else
  * 
  * @param {string} message The message to generate the tokens for
  * @param {number} startIndex start index of the substring
@@ -102,6 +102,7 @@ function GenerateToken(message: string, startIndex: number, endIndex: number, fo
  * @param {FormatterOptions} options 
  * @returns {Token[]} The tokens that form the message
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function Tokenize(message: string, options: FormatterOptions): Token[]
 {
 	// All the Tokens we found in this file
@@ -168,8 +169,6 @@ function Tokenize(message: string, options: FormatterOptions): Token[]
 
 	if(stringBegin != message.length)
 	{
-		const length: number = message.length - stringBegin;
-
 		tokens.push({
 			Type: TokenType.StringToken,
 			body: message.slice(stringBegin, message.length)
@@ -183,7 +182,7 @@ function Tokenize(message: string, options: FormatterOptions): Token[]
  * Generate the original text which generated a Token.
  * 
  * @param {Token} token Token to generate the text for
- * @returns {Nullable<string>} tring of the original text
+ * @returns {Nullable<string>} String of the original text
  */
 function GenerateTokenText(token: Token): Nullable<string>
 {
@@ -224,7 +223,6 @@ function ReassembleTokens(tokens: Token[], values: Record<string, unknown>, opti
 
 		if(values == null)
 		{
-			console.log(options.RegenerateUnknownTokens)
 			if(options.RegenerateUnknownTokens)
 				formatted += GenerateTokenText(token);
 			continue;
