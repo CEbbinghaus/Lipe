@@ -323,7 +323,5 @@ export function Format(message: string, values: Record<string, unknown>, options
 
 	const tokens = Tokenize(message, options);
 
-	console.log(tokens);
-
 	return ReassembleTokens(tokens, values, options);
 }
