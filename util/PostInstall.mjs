@@ -1,6 +1,4 @@
-// Runs initial Build script if the lib folder doesn't exist (in case it was included as a git repository)
-import { exec, spawn } from "child_process";
-import { existsSync, fstat, renameSync } from "fs";
+import { existsSync } from "fs";
 import * as path from "path";
 import { env } from "process";
 import { fileURLToPath } from 'url';
