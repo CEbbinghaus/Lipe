@@ -7,7 +7,6 @@ specifiers:
   '@typescript-eslint/parser': ^4.33.0
   chalk: ^4.1.2
   eslint: ^7.32.0
-  glob: ^7.2.0
   jest: ^28.1.0
   jest-ts-webcompat-resolver: ^1.0.0
   moment: ^2.29.1
@@ -17,12 +16,9 @@ specifiers:
   ts-jest: ^28.0.0
   typescript: 4.5.2
 
-dependencies:
-  chalk: 4.1.2
-  glob: 7.2.0
-  moment: 2.29.1
-
 optionalDependencies:
+  chalk: 4.1.2
+  moment: 2.29.1
   timer: github.com/CEbbinghaus/timer/38d27cc5157b5e44d06eae8fd0ffb8f778821d51_typescript@4.5.2
 
 devDependencies:
@@ -3183,6 +3179,7 @@ packages:
   /moment/2.29.1:
     resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
     dev: false
+    optional: true
 
   /ms/2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
@@ -3917,6 +3914,7 @@ packages:
 
   /w3c-hr-time/1.0.2:
     resolution: {integrity: sha512-z8P5DvDNjKDoFIHK7q8r8lackT6l+jo/Ye3HOle7l9nICP9lf1Ci25fy9vHd0JOWewkIFzXIEig3TdKT7JQ5fQ==}
+    deprecated: Use your platform's native performance.now() and performance.timeOrigin.
     dependencies:
       browser-process-hrtime: 1.0.0
     dev: false

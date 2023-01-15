@@ -89,9 +89,9 @@ async function RunCompiler(fileNames, options) {
  * @returns {string[]}
  */
 async function getFiles(dir) {
-	const dirents = await readdir(dir, { withFileTypes: true });
+	const dirs = await readdir(dir, { withFileTypes: true });
 
-	const files = await Promise.all(dirents.map((dirent) => {
+	const files = await Promise.all(dirs.map((dirent) => {
 		const res = resolve(dir, dirent.name);
 		return dirent.isDirectory() ? getFiles(res) : res;
 	}));
