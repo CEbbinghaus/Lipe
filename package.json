@@ -7,10 +7,12 @@
 	"homepage": "https://lipejs.com",
 	"exports": {
 		".": {
+			"types": "./lib/Types/index.d.ts",
 			"require": "./lib/CommonJS/index.js",
 			"import": "./lib/ES6/index.js"
 		},
 		"./defaults": {
+			"types": "./lib/Types/defaults.d.ts",
 			"require": "./lib/CommonJS/defaults.js",
 			"import": "./lib/ES6/defaults.js"
 		}
