@@ -72,7 +72,7 @@ console.log(
 		throw error;
 	});
 	
-import { Compile } from "./CompileProject.mjs";
+const { Compile } = await import("./CompileProject.mjs");
 const Success = await Compile();
 
 if (!Success) console.error("Failed to Build Source");
