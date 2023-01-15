@@ -1,11 +1,13 @@
 // Runs initial Build script if the lib folder doesn't exist (in case it was included as a git repository)
-
 import { exec, spawn } from "child_process";
 import { existsSync, fstat, renameSync } from "fs";
 import * as path from "path";
-import { cwd, exit } from "process";
-import { Compile } from "./CompileProject.mjs";
 import { env } from "process";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
 
 if (!existsSync("src")) {
 	console.log("Skipped...");
@@ -14,13 +16,9 @@ if (!existsSync("src")) {
 
 const dependencies = ["typescript"];
 
-const shell = process.argv.shift();
-const script = process.argv.shift();
+const dir = __dirname + "/../lib";
 
-const args = process.argv;
-const dir = path.join(cwd(), args[0] || "lib");
-
-const isGit = existsSync(".git");
+const isGit = existsSync(__dirname + "/.git");
 
 console.log("Postinstall Script Started");
 
@@ -60,20 +58,27 @@ if (shouldCompile && !(env.lipe_postinstall != false)) {
 	shouldCompile = false;
 }
 
-// Runs initial Build script if the lib folder doesn't exist (in case it was included as a git repository)
-if (shouldCompile) {
-	console.log(
-		"Library directory is missing. Must be installing from Git. Building project from source"
-	);
 
-	await VerifyDependencies().catch((error) => {
-		throw error;
-	});
-
-	const Success = await Compile();
-
-	if (!Success) console.error("Failed to Build Source");
-	else console.log("Built Logger from Source");
+if(!shouldCompile) {
+	console.log("Skipping Postinstall Compile");
+	process.exit(0);
 }
 
-console.log("Postinstall Script finished");
+import { Compile } from "./CompileProject.mjs";
+
+// Runs initial Build script if the lib folder doesn't exist (in case it was included as a git repository)
+console.log(
+	"Library directory is missing. Must be installing from Git. Building project from source"
+);
+
+await VerifyDependencies().catch((error) => {
+	throw error;
+});
+
+const Success = await Compile();
+
+if (!Success) console.error("Failed to Build Source");
+else console.log("Built Logger from Source");
+
+
+console.log("Finished Compiling Lipe Postinstall");

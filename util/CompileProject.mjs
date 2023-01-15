@@ -1,12 +1,18 @@
-import ts from "typescript";
-import * as fs from "fs";
-import glob from "glob";
-import { fileURLToPath } from "url";
+import { readFileSync, existsSync, writeFileSync } from "fs";
+import { readdir } from "fs/promises";
+import path, { resolve } from 'path';
+import { fileURLToPath } from 'url';
 
-if (!fs.existsSync("src")) {
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
+
+if (!existsSync(__dirname + "/../src")) {
 	console.log("Skipped...");
 	process.exit(0);
 }
+
+import ts from "typescript";
 
 const IsMainModule = process.argv[1] === fileURLToPath(import.meta.url);
 
@@ -57,8 +63,7 @@ async function RunCompiler(fileNames, options) {
 				"\n"
 			);
 			console.log(
-				`${diagnostic.file.fileName} (${line + 1},${
-					character + 1
+				`${diagnostic.file.fileName} (${line + 1},${character + 1
 				}): ${message}`
 			);
 		} else {
@@ -79,17 +84,33 @@ async function RunCompiler(fileNames, options) {
 }
 
 /**
+ * Get all files within a directory & subdirectories
+ * @param {string} dir 
+ * @returns {string[]}
+ */
+async function getFiles(dir) {
+	const dirents = await readdir(dir, { withFileTypes: true });
+
+	const files = await Promise.all(dirents.map((dirent) => {
+		const res = resolve(dir, dirent.name);
+		return dirent.isDirectory() ? getFiles(res) : res;
+	}));
+
+	return Array.prototype.concat(...files);
+}
+
+/**
  * Compiles the Project with all variations
  * @returns {Promise<boolean>} Success
  * @export
  */
-export function Compile() {
-	const rawData = fs.readFileSync("./tsconfig.json").toString();
+export async function Compile() {
+	const rawData = readFileSync("./tsconfig.json").toString();
 	const cleanData = rawData.replace(
 		/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
 		(m, g) => (g ? "" : m)
 	);
-	
+
 	/**
 	 * @type {../tsconfig.json}
 	 */
@@ -114,54 +135,46 @@ export function Compile() {
 	// if (!Targets || !Targets.Length)
 	// 	throw "Must Define at least One Target to Compile to";
 
-	console.log(`Compiling Lipe with Modules: {${Modules}}`); // and Targets: {${Targets}}
+	console.log(`Compiling Lipe with Modules: ${Modules}`); // and Targets: {${Targets}}
 
-	return new Promise((res, rej) => {
-		glob("src/**/*.ts", (err, files) => {
-			for (let module of Modules) {
-				if (err) {
-					console.error(err);
-					return;
-				}
+	const files = await (await getFiles("src")).filter(v => v.endsWith(".ts"))
+	for (let module of Modules) {
 
-				const options = Object.assign({}, compilerOptions);
+		const options = Object.assign({}, compilerOptions);
 
-				if (ModuleTable[module] === undefined)
-					throw `Module ${module} is missing its mapping`;
+		if (ModuleTable[module] === undefined)
+			throw `Module ${module} is missing its mapping`;
 
-				options["module"] = ModuleTable[module];
-				options["outDir"] += `/${module}`;
-				// options["target"] = Targets[0];
+		options["module"] = ModuleTable[module];
+		options["outDir"] += `/${module}`;
+		// options["target"] = Targets[0];
 
-				const CompilerFailed = !RunCompiler(files, options);
+		const CompilerFailed = !RunCompiler(files, options);
 
-				if (CompilerFailed) {
-					if (IsMainModule) process.exit(1);
-					else return res(false);
-				}
+		if (CompilerFailed) {
+			if (IsMainModule) process.exit(1);
+			else return false;
+		}
 
-				let pack = {
-					type: null
-				};
+		let pack = {
+			type: null
+		};
 
-				switch(module)
-				{
-					case "CommonJS":
-						pack.type = "commonjs"
-						break;
-					case "ES6":
-						pack.type = "module"
-					break;
-					default: 
-						console.warn("No package.json type for Non Standard Module " + module);
-				}
+		switch (module) {
+			case "CommonJS":
+				pack.type = "commonjs"
+				break;
+			case "ES6":
+				pack.type = "module"
+				break;
+			default:
+				console.warn("No package.json type for Non Standard Module " + module);
+		}
 
-				fs.writeFileSync(`./lib/${module}/package.json`, JSON.stringify(pack));
-				
-			}
-			return res(true);
-		});
-	});
+		writeFileSync(`./lib/${module}/package.json`, JSON.stringify(pack));
+
+	}
+	return true;
 }
 
 if (IsMainModule) {
