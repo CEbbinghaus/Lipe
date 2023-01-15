@@ -221,7 +221,7 @@ function ReassembleTokens(tokens: Token[], values: Record<string, unknown>, opti
 			continue;
 		}
 
-		if(values == null)
+		if(!values)
 		{
 			if(options.RegenerateUnknownTokens)
 				formatted += GenerateTokenText(token);
@@ -312,7 +312,7 @@ function Stringify(token: Token, value: unknown): Nullable<string> {
  * @param {FormatterOptions} [options] Any options for the formatter on how it should function
  * @returns {string} The formatted string with all tokens replaced with values
  */
-export function Format(message: string, values: Record<string, unknown>, options?: FormatterOptions): string
+export function Format(message: string, values?: Record<string, unknown> | null, options?: FormatterOptions): string
 {
 	// Exit early if there is nothing to format
 	if(!message)
