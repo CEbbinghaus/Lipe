@@ -60,3 +60,15 @@ logger.Critical("Here is a Critical Application Problem");
 let childLogger = logger.Child();
 
 childLogger.Info("A log from a Child Logger");
+
+logger.Child({isSecret: true}).Info("A hidden log due to the childlogger being secret.");
+
+logger.ClearPipes();
+
+const pipeA = new LoggerPipe([(msg) => "foo " + msg]);
+const pipeB = new LoggerPipe([(msg) => "bar " + msg]);
+
+logger.pipe.Pipe((msg) => msg.includes("fighters") ? pipeA : pipeB).Pipe(Console());
+
+logger.Log("fighters");
+logger.Log("bashers");
