@@ -103,11 +103,14 @@ export class LoggerPipe {
 		args = {},
 		options,
 	}: IPipeData) {
-		for (const func of this.pipe) {
+		let result = undefined;
+		for (let i = 0; i < this.pipe.length; ++i) {
+			const func = this.pipe[i];
+
 			// Skip any non Function that made its way into the pipe
 			if (!func && typeof func !== "function") continue;
 
-			let result = func(message, {
+			result = func(message, {
 				args: { ...args },
 				logLevel: logLevel,
 				meta,
@@ -131,6 +134,7 @@ export class LoggerPipe {
 			// If the resulting object is a LoggerPipe we pass it through.
 			if (result && result instanceof LoggerPipe) {
 				const pipeResult = result
+					.Pipe(...this.pipe.slice(i + 1))
 					.Execute({
 						[MessageSymbol]: message,
 						[LogLevelSymbol]: logLevel,
@@ -144,7 +148,7 @@ export class LoggerPipe {
 				if (options.awaitPromises) await pipeResult;
 
 				// Skip past the rest since the pipe has no output
-				continue;
+				return;
 			}
 
 			// We don't want to remove
@@ -323,7 +327,7 @@ export default class Logger {
 	}
 
 	private LogInternal(
-		type: LogLevel,
+		level: LogLevel,
 		message: string,
 		args?: Record<string | symbol, unknown>
 	) {
@@ -338,7 +342,7 @@ export default class Logger {
 			// @ts-ignore The Method exists but we don't want to expose it to the public.
 			pipe.Execute({
 				[MessageSymbol]: message,
-				[LogLevelSymbol]: type,
+				[LogLevelSymbol]: level,
 				isTimer: false,
 				args: Object.assign(args || {}, ChildArgs || {}),
 				options: this.options,
