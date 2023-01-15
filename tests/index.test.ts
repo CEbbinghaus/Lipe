@@ -136,6 +136,21 @@ describe("Transform Messages", () => {
 		expect(output).toBeCalledWith(message, expect.objectContaining({logLevel: LogLevel.Log}));
 	});
 
+	test("Seperate Pipe can Transform message", () => {
+		logger = new Logger();
+
+		logger.pipe
+			.Pipe(() => new LoggerPipe([(msg) => "Piped:" + msg]))
+			.Pipe(output);
+
+		logger.Log(message);
+
+		expect(output).toBeCalledWith(
+			"Piped:" + message,
+			expect.objectContaining({ logLevel: LogLevel.Log })
+		);
+	});
+
 
 });
 
