@@ -62,17 +62,17 @@ if(!shouldCompile) {
 	process.exit(0);
 }
 
-import { Compile } from "./CompileProject.mjs";
 
 // Runs initial Build script if the lib folder doesn't exist (in case it was included as a git repository)
 console.log(
 	"Library directory is missing. Must be installing from Git. Building project from source"
-);
-
-await VerifyDependencies().catch((error) => {
-	throw error;
-});
-
+	);
+	
+	await VerifyDependencies().catch((error) => {
+		throw error;
+	});
+	
+const { Compile } = await import("./CompileProject.mjs");
 const Success = await Compile();
 
 if (!Success) console.error("Failed to Build Source");
