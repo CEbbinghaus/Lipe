@@ -103,14 +103,13 @@ export class LoggerPipe {
 		args = {},
 		options,
 	}: IPipeData) {
-		let result = undefined;
 		for (let i = 0; i < this.pipe.length; ++i) {
 			const func = this.pipe[i];
-
+			
 			// Skip any non Function that made its way into the pipe
 			if (!func && typeof func !== "function") continue;
-
-			result = func(message, {
+			
+			let result = func(message, {
 				args: { ...args },
 				logLevel: logLevel,
 				meta,
@@ -133,8 +132,11 @@ export class LoggerPipe {
 
 			// If the resulting object is a LoggerPipe we pass it through.
 			if (result && result instanceof LoggerPipe) {
+				
+				if(i + 1 < this.pipe.length)
+					result = result.Pipe(...this.pipe.slice(i + 1));
+			
 				const pipeResult = result
-					.Pipe(...this.pipe.slice(i + 1))
 					.Execute({
 						[MessageSymbol]: message,
 						[LogLevelSymbol]: logLevel,
@@ -143,6 +145,7 @@ export class LoggerPipe {
 						options: options,
 					})
 					.catch(console.error);
+
 
 				// This is still up in the air. It will wait until all of the pipe has finished executing
 				if (options.awaitPromises) await pipeResult;
