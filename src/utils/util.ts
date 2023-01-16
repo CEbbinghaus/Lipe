@@ -1,10 +1,12 @@
 import { Format } from "./Formatter";
 
+/*#__PURE__*/
 export function InternalSplat(format: string, values: Record<string, unknown>): string{
 	return Format(format, values);
 }
 
 // Copied and Adapted from: https://github.com/trentm/node-bunyan/blob/0ff1ae29cc9e028c6c11cd6b60e3b90217b66a10/lib/bunyan.js#L178
+/*#__PURE__*/
 export function getCallerInfo(): Record<string, unknown> {
 	if (this === undefined) {
 		// Cannot access caller info in 'strict' mode.

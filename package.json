@@ -5,6 +5,7 @@
 	"typings": "lib/Types",
 	"packageManager": "pnpm@6.32.2",
 	"homepage": "https://lipejs.com",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./lib/Types/index.d.ts",
@@ -53,7 +54,6 @@
 	},
 	"optionalDependencies": {
 		"chalk": "^4.1.2",
-		"moment": "^2.29.1",
-		"timer": "github:CEbbinghaus/timer"
+		"moment": "^2.29.1"
 	}
 }

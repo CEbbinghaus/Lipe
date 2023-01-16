@@ -1,3 +1,4 @@
+/*#__PURE__*/
 export function getErrorObject(error: Error = null): Error {
 	const err = error || new Error();
 

@@ -10,10 +10,12 @@ const LogColors: { [key: number]: ChalkFunction } = {
 	[LogLevel.Critical]: chalk.magentaBright.bold,
 };
 
+/*#__PURE__*/
 export const SimplePrefix: IFormatter = (message: string, { meta, logLevel }) => {
 	meta.prefix = LogLevel[logLevel] + ":";
 };
 
+/*#__PURE__*/
 export const PrefixWithColor: IFormatter = (
 	message: string,
 	{ meta, logLevel }
