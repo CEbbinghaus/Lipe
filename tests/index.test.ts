@@ -124,8 +124,6 @@ describe("Transform Messages", () => {
 	});
 
 	test("Can Route message to separate pipe", () => {
-		logger = new Logger();
-
 		logger.pipe
 			.Pipe(() => {
 				return defaultPipe;
@@ -137,8 +135,6 @@ describe("Transform Messages", () => {
 	});
 
 	test("Seperate Pipe can Transform message", () => {
-		logger = new Logger();
-
 		logger.pipe
 			.Pipe(() => new LoggerPipe([(msg) => "Piped:" + msg]))
 			.Pipe(output);
