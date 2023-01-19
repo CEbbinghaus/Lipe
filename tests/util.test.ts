@@ -1,5 +1,6 @@
 import { getErrorObject } from "../src/utils/ErrorHandling"
 import { Format } from "../src/utils/Formatter"
+import { getCallerInfo } from "../src/utils/util"
 
 
 describe("GetErrorObject", () => {
@@ -84,3 +85,11 @@ describe("Format", () => {
 			.toEqual("{testing 42}")
 	})
 });
+
+describe("Getting caller information works", () => {
+	test("is able to get caller info", () => {
+		const obj = getCallerInfo();
+
+		expect(obj).toEqual(null);
+	})
+})
