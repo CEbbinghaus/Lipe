@@ -1,3 +1,4 @@
+/*#__PURE__*/
 export { Colorize } from "./transforms/colors.js";
 export { SimplePrefix, PrefixWithColor } from "./transforms/prefix.js";
 export { Splat } from "./transforms/splat.js";

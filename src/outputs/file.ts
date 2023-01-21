@@ -7,6 +7,7 @@ export const WriteToFile: (
 	options?: { minLevel?: LogLevel }
 ) => IFormatter = (filename, options) => {
 	const filePath = join(process.cwd(), filename);
+
 	if (!existsSync(filePath)) {
 		writeFileSync(filePath, "");
 	}
