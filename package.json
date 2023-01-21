@@ -54,7 +54,7 @@
 		"typescript": "4.5.2"
 	},
 	"optionalDependencies": {
-		"chalk": "^5.2.0",
+		"chalk": "github:CEbbinghaus/chalk#FixTreeShaking",
 		"dayjs": "^1.11.7"
 	}
 }
