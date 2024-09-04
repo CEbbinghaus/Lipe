@@ -69,8 +69,10 @@ jobs:
       - name: Install Tools
         uses: jdx/mise-action@v2
 
+      # - name: Run Unit Tests
+      #   uses: ArtiomTr/jest-coverage-report-action@v2
+      #   with:
+      #     test-script: pnpm test
+      #     package-manager: pnpm
       - name: Run Unit Tests
-        uses: ArtiomTr/jest-coverage-report-action@v2
-        with:
-          test-script: pnpm test
-          package-manager: pnpm
+        run: pnpm test
