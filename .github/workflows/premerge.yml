@@ -69,6 +69,9 @@ jobs:
       - name: Install Tools
         uses: jdx/mise-action@v2
 
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
+
       # - name: Run Unit Tests
       #   uses: ArtiomTr/jest-coverage-report-action@v2
       #   with:
