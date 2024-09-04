@@ -25,7 +25,6 @@ jobs:
 
   lint:
     needs: setup
-    if: "true"
     runs-on: ubuntu-latest
     name: 🔎 Linting 🧹
     steps:
@@ -54,7 +53,6 @@ jobs:
   
   build:
     needs: lint
-    if: "true"
     runs-on: ubuntu-latest
     name: 🔨 Building 📦
     steps:
