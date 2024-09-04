@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: 🔧 Setup 📐
     steps:
-        - uses: "actions/checkout@v2"
+        - uses: "actions/checkout@v4"
 
         - name: Hash source Folder
           env:
@@ -25,28 +25,19 @@ jobs:
 
   lint:
     needs: setup
-    if: "true"
     runs-on: ubuntu-latest
     name: 🔎 Linting 🧹
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v4"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: latest
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 17.3
-          cache: 'pnpm'
+      - name: Install Tools
+        uses: jdx/mise-action@v2
 
       - name: Install Dependencies
         run: pnpm install --prefer-offline --frozen-lockfile
 
       - name: Lint Project
-        uses: wearerequired/lint-action@v1
+        uses: wearerequired/lint-action@v2
         with:
           eslint: true
           eslint_dir: "src"
@@ -54,22 +45,13 @@ jobs:
   
   build:
     needs: lint
-    if: "true"
     runs-on: ubuntu-latest
     name: 🔨 Building 📦
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v4"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: latest
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 17.3
-          cache: 'pnpm'
+      - name: Install Tools
+        uses: jdx/mise-action@v2
 
       - name: Install Dependencies
         run: pnpm install --prefer-offline --frozen-lockfile
@@ -82,21 +64,18 @@ jobs:
     runs-on: ubuntu-latest
     name: ⚗️ Testing 👷🏼
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v4"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: latest
+      - name: Install Tools
+        uses: jdx/mise-action@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 17.3
-          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install --prefer-offline --frozen-lockfile
 
+      # - name: Run Unit Tests
+      #   uses: ArtiomTr/jest-coverage-report-action@v2
+      #   with:
+      #     test-script: pnpm test
+      #     package-manager: pnpm
       - name: Run Unit Tests
-        uses: ArtiomTr/jest-coverage-report-action@v2
-        with:
-          test-script: pnpm test
-          package-manager: pnpm
+        run: pnpm test

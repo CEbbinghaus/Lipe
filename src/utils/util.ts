@@ -1,4 +1,4 @@
-import { Format } from "./Formatter";
+import { Format } from "./Formatter.js";
 
 export function InternalSplat(format: string, values: Record<string, unknown>): string{
 	return Format(format, values);
