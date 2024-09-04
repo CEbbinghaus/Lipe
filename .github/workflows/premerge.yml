@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: 🔧 Setup 📐
     steps:
-        - uses: "actions/checkout@v2"
+        - uses: "actions/checkout@v4"
 
         - name: Hash source Folder
           env:
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     name: 🔎 Linting 🧹
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v4"
 
       - name: Install Tools
         uses: jdx/mise-action@v2
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     name: 🔨 Building 📦
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v4"
 
       - name: Install Tools
         uses: jdx/mise-action@v2
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     name: ⚗️ Testing 👷🏼
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v4"
 
       - name: Install Tools
         uses: jdx/mise-action@v2
