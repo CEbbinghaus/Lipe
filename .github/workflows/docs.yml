@@ -18,10 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: latest
+      - name: Install Tools
+        uses: jdx/mise-action@v2
 
       - name: Install Dependencies
         run: pnpm install --prefer-offline --frozen-lockfile
