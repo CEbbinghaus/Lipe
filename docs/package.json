@@ -2,19 +2,22 @@
   "name": "@lipe/docs",
   "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "dev": "astro dev",
-    "serve": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
-  },
+"scripts": {
+	"dev": "astro dev",
+	"start": "astro dev",
+	"build": "astro check && astro build",
+	"preview": "astro preview",
+	"astro": "astro"
+},
   "dependencies": {
-    "@docsearch/react": "^1.0.0-alpha.27"
+    "@docsearch/react": "1.0.0-alpha.28"
   },
   "devDependencies": {
-    "astro": "^0.20.8",
-    "@snowpack/plugin-dotenv": "^2.1.0",
-    "@astrojs/renderer-preact": "^0.2.2"
+	"@types/react": "^18.3.5",
+    "@astrojs/renderer-preact": "^0.2.2",
+    "@snowpack/plugin-dotenv": "^2.2.0",
+	"astro": "^4.15.2",
+	"@astrojs/check": "^0.9.3",
+	"typescript": "^5.5.4"
   }
 }
