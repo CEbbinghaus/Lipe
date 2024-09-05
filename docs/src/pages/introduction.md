@@ -5,11 +5,11 @@ layout: ../layouts/MainLayout.astro
 
 ## Core
 
-The Lipe framework is based around [Pipes](./pipes) and [Transforms](./transforming). These two concepts make up the core of the library allowing for near infinite customization and expandability. 
+The Lipe framework is based around [Pipes](/pipes) and [Transforms](/transforming). These two concepts make up the core of the library allowing for near infinite customization and expandability. 
 
 ## Usage
 
-following on from the [QuickStart](./quickstart) example we are left with the following code.
+following on from the [QuickStart](/quickstart) example we are left with the following code.
 
 ```javascript
 import Logger from "lipe";
@@ -32,7 +32,7 @@ One way to clean up the logging output is to create a function with only one arg
 ```javascript
 logger.pipe.Pipe((msg) => console.log(msg))
 ```
-But the recommended approach is to use the [Console](./console) default that comes packaged with lipe. 
+But the recommended approach is to use the [Console](/console) default that comes packaged with lipe. 
 ```javascript
 import { Console } from "lipe/default";
 // ...
@@ -69,4 +69,4 @@ import { LogLevel } from "lipe"
 
 logger.pipe.Pipe((msg, ctx) => ctx.logLevel >= LogLevel.Warn);
 ```
-This is covered in more depth at [LogLevels](./loglevels)
+This is covered in more depth at [LogLevels](/loglevels)
